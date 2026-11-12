@@ -1,0 +1,1142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZIPP ARCADE</title>
+<style>
+:root{
+ --bg:#090a18;--panel:#14152b;--panel2:#1c1b39;
+ --blue:#456cff;--purple:#a34dff;--green:#55ff79;
+ --muted:#9999bb;--line:#34345c;--gold:#ffd65b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+body:before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+ background:radial-gradient(ellipse at 10% 10%,#273a8340,transparent 45%),
+ radial-gradient(ellipse at 90% 30%,#8126a433,transparent 45%);
+}
+header{
+ height:75px;position:sticky;top:0;z-index:10;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 5%;background:#101023ed;backdrop-filter:blur(15px);
+ border-bottom:1px solid var(--line);gap:15px;
+}
+.logo{font-weight:1000;font-size:24px;letter-spacing:2px;
+ text-shadow:3px 0 var(--purple),-3px 0 var(--blue)}
+.logo span{color:var(--green)}
+nav{display:flex;gap:20px;align-items:center}
+nav button{border:0;background:none;color:#b5b4d4;font-size:12px;font-weight:bold}
+nav button:hover{color:var(--green)}
+.account-button,.primary{
+ border:0;background:var(--green);color:#08140a;
+ font-weight:900;border-radius:8px;padding:12px 17px;
+}
+.account-button{background:#30234f;color:#d6b8ff;border:1px solid #8856c9}
+main{max-width:1250px;margin:auto;padding:28px 23px}
+.hero{
+ min-height:270px;border:1px solid #5146a8;border-radius:18px;
+ padding:40px 5%;display:flex;align-items:center;
+ justify-content:space-between;overflow:hidden;
+ background:linear-gradient(115deg,#171a48,#28134c 70%,#11162e);
+}
+.hero h1{font-size:clamp(37px,6vw,64px);line-height:1.02;margin:12px 0}
+.hero h1 span{color:var(--green)}
+.hero p{color:#c4c3e5;line-height:1.6}
+.mascot{font-size:105px;filter:drop-shadow(0 0 22px var(--green));animation:float 3s infinite ease-in-out}
+@keyframes float{50%{transform:translateY(-12px) rotate(5deg)}}
+.kicker{color:var(--green);font-size:11px;letter-spacing:3px;font-weight:bold}
+.search{display:flex;gap:10px;margin:25px 0}
+.search input,.field{
+ width:100%;background:#15162e;border:1px solid var(--line);
+ color:white;padding:14px;border-radius:8px;outline:none;
+}
+.search input:focus,.field:focus{border-color:var(--purple)}
+.heading{display:flex;align-items:center;justify-content:space-between;margin:32px 0 17px;gap:10px}
+.heading h2{font-size:21px;margin:0}
+.heading span{font-size:11px;color:var(--green)}
+.categories{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+.cat{background:#17172f;border:1px solid var(--line);color:#ccc;
+ padding:10px 15px;border-radius:7px}
+.cat.active,.cat:hover{background:#5731a5;border-color:#b27aff;color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.game{background:var(--panel);border:1px solid #33335a;border-radius:12px;overflow:hidden;transition:.2s}
+.game:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 8px 25px #783aff30}
+.thumb{height:145px;display:grid;place-items:center;font-size:65px;position:relative}
+.tag{position:absolute;top:10px;left:10px;background:#101020d9;color:var(--green);padding:6px 9px;font-size:10px;border-radius:5px}
+.details{padding:14px}
+.details h3{margin:0 0 7px;font-size:16px}
+.details p{font-size:12px;color:var(--muted);margin:0}
+.meta{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:#ccc}
+.meta strong{color:var(--green)}
+.game-actions{display:flex;gap:8px;margin-top:13px}
+.play{flex:1;border:0;background:#6841d9;color:white;padding:10px;border-radius:6px;font-weight:bold}
+.fav{border:0;background:#292542;color:#ff7abb;padding:9px 13px;border-radius:6px;font-size:19px}
+.panel{background:linear-gradient(130deg,#171638,#211344,#10152b);
+ border:1px solid #514584;border-radius:15px;padding:23px;margin:30px 0}
+.panel h2{margin:0 0 8px}
+.muted{color:var(--muted);font-size:13px}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px;margin-top:20px}
+.quest{background:#15152d;border:1px solid #403b6c;border-radius:10px;padding:16px}
+.quest-icon{font-size:32px}
+.quest h3{font-size:14px}
+.bar{height:8px;background:#34304f;border-radius:10px;overflow:hidden;margin:10px 0}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--green))}
+.quest button{width:100%;margin-top:12px;padding:10px;border:0;border-radius:6px;font-weight:bold}
+.reward{color:#c9a3ff;font-weight:bold;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0}
+.stat{background:#191934;border:1px solid var(--line);padding:16px;border-radius:10px}
+.stat strong{font-size:25px;color:var(--green);display:block;margin-bottom:5px}
+.stat small{color:var(--muted)}
+.rank-table{width:100%;border-collapse:collapse;margin-top:18px}
+.rank-table td{padding:15px 9px;border-bottom:1px solid var(--line)}
+.rank-table tr:first-child td{color:var(--gold)}
+.rank-table td:last-child{text-align:right;color:var(--green)}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.podium div{background:#242044;border-radius:9px;text-align:center;padding:16px 5px}
+.podium strong{font-size:23px;display:block;color:var(--gold)}
+.podium small{color:var(--muted)}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:20px}
+.badge-card{background:#191934;border:1px solid var(--line);padding:16px;text-align:center;border-radius:10px}
+.badge-card .emoji{font-size:35px}
+.badge-card.locked{opacity:.35;filter:grayscale(1)}
+.progress-text{font-size:12px;color:var(--muted)}
+footer{text-align:center;border-top:1px solid #292849;padding:35px;color:#777795;font-size:12px;margin-top:50px}
+.modal{display:none;position:fixed;inset:0;background:#050510ed;z-index:50;align-items:center;justify-content:center;padding:15px;overflow-y:auto}
+.modal.show{display:flex}
+.modal-card{background:#17172f;border:1px solid #8956d5;border-radius:15px;padding:26px;width:100%;max-width:420px;box-shadow:0 0 40px #783aff30}
+.modal-card h2{color:var(--green)}
+.modal-card input{margin:8px 0}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.modal-actions button{flex:1;min-width:110px}
+.secondary{background:#373257;color:white;border:1px solid #514778;padding:11px;border-radius:7px}
+.message{color:#ff91bd;font-size:12px;min-height:18px}
+.close{background:#393454;color:white;padding:10px 15px;border:0;border-radius:7px}
+.empty{text-align:center;color:var(--muted);padding:35px;grid-column:1/-1}
+.profile-avatar{font-size:60px}
+.social-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.social-row:last-child{border-bottom:0}.social-name{font-weight:bold}.social-actions{display:flex;gap:6px;flex-wrap:wrap}
+.social-actions button{padding:7px 10px;font-size:11px}.social-pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#29234a;color:#cdb4ff;font-size:10px;margin-left:6px}
+@media(max-width:650px){
+ header{padding:0 12px;height:65px}
+ .logo{font-size:18px}
+ nav{gap:8px}
+ nav button{font-size:10px}
+ main{padding:20px 14px}
+ .hero{padding:25px 18px}
+ .mascot{font-size:65px}
+ .hero h1{font-size:37px}
+ .panel{padding:16px}
+}
+
+.zipp-chat-panel{border-color:#5c55b6;box-shadow:0 0 28px #6045d31a}
+.chat-topics{display:flex;gap:8px;flex-wrap:wrap;margin:17px 0}
+.chat-log{height:360px;overflow-y:auto;background:#0e1024;border:1px solid #34345c;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.chat-message{max-width:88%;padding:12px 14px;border-radius:12px;line-height:1.5;font-size:13px;overflow-wrap:anywhere}
+.chat-message p{margin:5px 0 0;white-space:pre-wrap}
+.zipp-message{align-self:flex-start;background:#242047;border:1px solid #59469a;border-bottom-left-radius:3px}
+.user-message{align-self:flex-end;background:#183b50;border:1px solid #28718a;border-bottom-right-radius:3px}
+.zipp-message b{color:var(--green)}.user-message b{color:#8edfff}
+.chat-compose{display:flex;gap:9px;margin-top:12px}
+.chat-compose input{flex:1;min-width:0}
+.chat-footnote{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}
+@media(max-width:650px){nav{gap:5px;overflow-x:auto}nav button{font-size:9px;white-space:nowrap;padding:5px 2px}.chat-log{height:330px}.chat-message{max-width:96%}.chat-compose{gap:6px}.chat-compose button{padding:10px}}
+
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">ZIPP<span> ARCADE</span></div>
+ <nav>
+  <button onclick="go('home')">HOME</button>
+  <button onclick="go('quests')">QUESTS</button>
+  <button onclick="go('leaderboard')">RANKS</button>
+  <button onclick="go('community')">FRIENDS</button>
+  <button onclick="go('zippChat')">ZIPP AI</button>
+ </nav>
+ <button class="account-button" id="accountButton" onclick="openAccount()">👤 LOGIN</button>
+</header>
+
+<main>
+<section id="home">
+ <div class="hero">
+  <div>
+   <div class="kicker">WELCOME TO THE ARCADE</div>
+   <h1>LEVEL UP.<br><span>GLITCH OUT.</span></h1>
+   <p>Discover games. Complete missions.<br>Become a ZIPP legend.</p>
+   <button class="primary" onclick="go('games')">EXPLORE GAMES →</button>
+  </div>
+  <div class="mascot">👾</div>
+ </div>
+
+ <div class="stats" id="homeStats"></div>
+ <div class="search">
+  <input id="search" placeholder="🔍 Search games..." oninput="renderGames()">
+  <button class="primary" onclick="document.getElementById('search').value='';renderGames()">CLEAR</button>
+ </div>
+ <div class="heading"><h2>⚡ GAME CATEGORIES</h2><span>FIND YOUR NEXT GAME</span></div>
+ <div class="categories" id="categories"></div>
+ <div class="heading" id="games"><h2 id="gameHeading">🔥 POPULAR GAMES</h2><span id="gameCount"></span></div>
+ <div class="grid" id="gameGrid"></div>
+</section>
+
+<section id="zippChat" class="panel zipp-chat-panel">
+ <div class="kicker">YOUR ARCADE SIDEKICK</div>
+ <h2>💬 CHAT WITH ZIPP</h2>
+ <p class="muted">Ask ZIPP about almost anything — science, technology, history, maths, coding, gaming, creativity and everyday questions.</p>
+ <div class="chat-topics">
+  <button class="cat" onclick="askZipp('What console should I buy?')">🎮 Console advice</button>
+  <button class="cat" onclick="askZipp('Recommend a game for me')">✨ Game recommendations</button>
+  <button class="cat" onclick="askZipp('Explain FPS and RPG games')">📚 Gaming terms</button>
+  <button class="cat" onclick="askZipp('My game is lagging. Help!')">🛠️ Fix lag</button>
+ </div>
+ <div id="zippChatLog" class="chat-log" role="log" aria-live="polite" aria-label="Chat with ZIPP">
+  <div class="chat-message zipp-message"><b>👾 ZIPP</b><p>Hey! 👾 I'm ZIPP, your smart sidekick. Ask me about science, technology, coding, history, maths, gaming, creativity or everyday questions. What are we exploring?</p></div>
+ </div>
+ <form class="chat-compose" onsubmit="sendZippMessage(event)">
+  <input id="zippChatInput" class="field" maxlength="500" autocomplete="off" placeholder="Ask ZIPP anything..." aria-label="Message ZIPP">
+  <button class="primary" type="submit">SEND ↗</button>
+ </form>
+ <div class="chat-footnote">ZIPP SMART MODE · Expanded offline knowledge · Remembers the conversation while this chat is open · No API key required. Live facts and unrestricted AI reasoning require an online AI connection.</div>
+</section>
+
+<section id="quests" class="panel">
+ <div class="kicker">ZIPP MISSION CONTROL</div>
+ <h2>⚡ DAILY QUESTS</h2>
+ <p class="muted">Complete missions, collect XP and climb the rankings.</p>
+ <div class="stats" id="questStats"></div>
+ <div id="questGrid" class="quest-grid"></div>
+ <p class="muted">🌙 Daily quests reset at midnight according to your device's date.</p>
+</section>
+
+<section id="leaderboard" class="panel">
+ <div class="kicker">THE COMPETITION</div>
+ <h2>🏆 PLAYER LEADERBOARD</h2>
+ <p class="muted">The highest XP players across ZIPP ARCADE.</p>
+ <div class="podium" id="podium"></div>
+ <table class="rank-table"><tbody id="rankRows"></tbody></table>
+ <p class="muted">Cloud leaderboard updates when players log in and save progress.</p>
+</section>
+
+<section id="community" class="panel">
+ <div class="kicker">ZIPP SOCIAL NETWORK</div>
+ <h2>👥 FRIENDS & FOLLOWERS</h2>
+ <p class="muted">Find players, send friend requests, and follow people. In this preview, accounts are stored locally in this browser.</p>
+ <div id="socialStats" class="stats"></div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0">
+  <input id="playerSearch" class="field" style="flex:1;min-width:190px" maxlength="16" placeholder="Search player username..." oninput="renderSocialSearch()">
+  <button class="primary" onclick="renderSocialSearch()">FIND PLAYERS</button>
+ </div>
+ <div id="socialSearchResults"></div>
+ <div class="quest-grid" style="margin-top:22px">
+  <div class="quest"><h3>📨 FRIEND REQUESTS</h3><div id="friendRequests"></div></div>
+  <div class="quest"><h3>🤝 YOUR FRIENDS</h3><div id="friendList"></div></div>
+  <div class="quest"><h3>💚 FOLLOWING</h3><div id="followingList"></div></div>
+  <div class="quest"><h3>⭐ FOLLOWERS</h3><div id="followersList"></div></div>
+ </div>
+</section>
+
+<section id="achievements" class="panel">
+ <div class="kicker">COLLECT THEM ALL</div>
+ <h2>🏅 ACHIEVEMENTS</h2>
+ <p class="muted">Unlock badges as you progress through the arcade.</p>
+ <div class="badges" id="badges"></div>
+</section>
+
+<section id="profile" class="panel">
+ <div class="kicker">YOUR PLAYER IDENTITY</div>
+ <h2>👤 PLAYER PROFILE</h2>
+ <div id="profileContent" class="muted">Log in to see your profile.</div>
+</section>
+</main>
+
+<footer>
+ <div id="storageStatus" role="status" aria-live="polite" style="max-width:850px;margin:0 auto 18px;padding:10px 14px;border:1px solid #48518c;border-radius:10px;background:#151b3a;font-size:12px">Checking browser storage…</div>
+ <div style="font-size:25px;color:var(--green)">👾 ZIPP ARCADE</div>
+ DISCOVER • PLAY • EXPLORE • REPEAT<br><br>
+ UNOFFICIAL GAME DISCOVERY PLATFORM • NOT AFFILIATED WITH ROBLOX
+</footer>
+
+<div class="modal" id="accountModal">
+ <div class="modal-card">
+  <div style="font-size:40px">👾</div>
+  <h2 id="modalTitle">WELCOME TO ZIPP</h2>
+  <p class="muted" id="modalDesc">Create your player account.</p>
+  <div id="accountFields">
+   <input class="field" id="username" maxlength="16" placeholder="Username">
+   <input class="field" id="email" type="email" autocomplete="email" placeholder="Email address">
+   <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password (minimum 8 characters)">
+  </div>
+  <div class="modal-actions" id="accountActions">
+   <button class="primary" onclick="register()">CREATE ACCOUNT</button>
+   <button class="secondary" onclick="login()">LOGIN</button>
+  </div>
+  <p class="message" id="accountMessage"></p>
+  <button class="close" onclick="closeModal()">CLOSE</button>
+ </div>
+</div>
+
+<div class="modal" id="gameModal">
+ <div class="modal-card" style="text-align:center">
+  <div id="gameEmoji" style="font-size:65px">🎮</div>
+  <h2 id="gameTitle">GAME TITLE</h2>
+  <p id="gameDescription" class="muted"></p>
+  <p style="color:var(--green)">READY TO PLAY?</p>
+  <button class="primary" id="launchButton">PLAY GAME ↗</button>
+  <p id="gameMessage" class="muted"></p>
+  <button class="close" onclick="document.getElementById('gameModal').classList.remove('show')">BACK</button>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ======================================
+// ZIPP ARCADE - COMPLETE GAME PLATFORM
+// ======================================
+
+// Persistent storage: IndexedDB first, localStorage as a fallback.
+// HTML preview frames can block localStorage, so failures are shown to the player.
+const STORAGE="zipp_arcade_complete_v1";
+const DB_NAME="zipp_arcade_storage";
+const DB_STORE="player_data";
+let db={accounts:[],session:null};
+let idb=null;
+let storageMode="STARTING";
+let saveQueue=Promise.resolve();
+
+// SUPABASE CLOUD CONFIGURATION
+// Paste your Supabase Project URL and anon/publishable key here after creating the project.
+// Never put a service_role key or database password in this public website.
+const SUPABASE_URL="https://edhuhgtuxzasbuiotrfz.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_JiY1vIOzhAYRt4bea1uwug_HMO7RuQ4";
+let supabase=null;
+let cloudUserId=null;
+let cloudSaveQueue=Promise.resolve();
+let cloudReady=false;
+function cloudConfigured(){return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL)&&(/^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/.test(SUPABASE_ANON_KEY));}
+function initCloud(){
+ if(!cloudConfigured()||!window.supabase?.createClient){showStorageStatus("⚠ Local saves only — connect your Supabase project to enable cloud sync",false);return false;}
+ supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ return true;
+}
+function cloudMessage(message,ok=true){showStorageStatus((ok?"☁ ":"⚠ ")+message,ok);}
+async function cloudLoadProfile(){
+ if(!supabase||!cloudUserId)return null;
+ const {data:publicData,error:publicError}=await supabase.from("zipp_profiles").select("username,xp").eq("id",cloudUserId).maybeSingle();
+ if(publicError)throw publicError;
+ if(!publicData)return null;
+ const {data:saveData,error:saveError}=await supabase.from("zipp_player_saves").select("profile_data").eq("id",cloudUserId).maybeSingle();
+ if(saveError)throw saveError;
+ return {...(saveData?.profile_data||{}),username:publicData.username,xp:Number(publicData.xp)||0};
+}
+async function cloudSaveProfile(){
+ if(!supabase||!cloudUserId)return;
+ const u=currentUser();if(!u)return;
+ const profile={...u};delete profile.passwordHash;delete profile.email;
+ const {error:profileError}=await supabase.from("zipp_profiles").upsert({id:cloudUserId,username:u.username,xp:Number(u.xp)||0,updated_at:new Date().toISOString()},{onConflict:"id"});
+ if(profileError)throw profileError;
+ const {error:saveError}=await supabase.from("zipp_player_saves").upsert({id:cloudUserId,profile_data:profile,updated_at:new Date().toISOString()},{onConflict:"id"});
+ if(saveError)throw saveError;
+}
+async function cloudRefreshPlayers(){
+ if(!supabase)return;
+ const {data,error}=await supabase.from("zipp_profiles").select("username,xp").order("xp",{ascending:false}).limit(200);
+ if(error)throw error;
+ const cloudPlayers=(data||[]).map(row=>({username:row.username,xp:Number(row.xp)||0}));
+ const me=currentUser();
+ db.accounts=cloudPlayers;
+ if(me){const latest=db.accounts.find(a=>a.username===me.username);if(latest)Object.assign(me,latest);}
+ if(me&&!db.accounts.some(a=>a.username===me.username))db.accounts.push(me);
+}
+async function cloudRestoreSession(){
+ if(!supabase)return;
+ const {data,error}=await supabase.auth.getSession();
+ if(error)throw error;
+ const session=data.session;
+ if(!session){cloudUserId=null;return;}
+ cloudUserId=session.user.id;
+ const profile=await cloudLoadProfile();
+ if(profile){
+  const idx=db.accounts.findIndex(a=>a.username===profile.username);
+  if(idx>=0)db.accounts[idx]={...db.accounts[idx],...profile};else db.accounts.push(profile);
+  db.session=profile.username;
+  dailyLogin(currentUser());
+  await cloudSaveProfile();
+ }else{
+  const username=session.user.user_metadata?.username;
+  if(username){
+   const migrated=db.accounts.find(a=>a.username.toLowerCase()===String(username).toLowerCase());
+   const fresh=migrated?{...migrated,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+   delete fresh.passwordHash;db.accounts.push(fresh);db.session=username;await cloudSaveProfile();
+  }else{db.session=null;cloudMessage("Cloud account has no ZIPP username. Please contact the site owner.",false);}
+ }
+ await cloudRefreshPlayers();
+ cloudReady=true;
+ cloudMessage("Cloud saves connected — your progress syncs when you log in on another device.");
+}
+
+function showStorageStatus(message, ok){
+ const el=document.getElementById("storageStatus");
+ if(el){el.textContent=message;el.style.color=ok?"#8dff76":"#ffbd69";}
+}
+function openStorageDB(){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(new Error("IndexedDB unavailable"));return;}
+  const request=indexedDB.open(DB_NAME,1);
+  request.onupgradeneeded=()=>{
+   const database=request.result;
+   if(!database.objectStoreNames.contains(DB_STORE))database.createObjectStore(DB_STORE);
+  };
+  request.onsuccess=()=>resolve(request.result);
+  request.onerror=()=>reject(request.error||new Error("Could not open IndexedDB"));
+  request.onblocked=()=>reject(new Error("Storage is blocked by the preview"));
+ });
+}
+function idbRead(){
+ return new Promise((resolve,reject)=>{
+  const tx=idb.transaction(DB_STORE,"readonly");
+  const request=tx.objectStore(DB_STORE).get("state");
+  request.onsuccess=()=>resolve(request.result||null);
+  request.onerror=()=>reject(request.error);
+ });
+}
+function idbWrite(serialized){
+ return new Promise((resolve,reject)=>{
+  const tx=idb.transaction(DB_STORE,"readwrite");
+  tx.objectStore(DB_STORE).put(serialized,"state");
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error||new Error("Save failed"));
+  tx.onabort=()=>reject(tx.error||new Error("Save was interrupted"));
+ });
+}
+async function initialiseStorage(){
+ try{
+  idb=await openStorageDB();
+  const saved=await idbRead();
+  if(saved){db=JSON.parse(saved);}
+  else {
+   // Migrate existing localStorage accounts into IndexedDB on first run.
+   try{const old=localStorage.getItem(STORAGE);if(old)db=JSON.parse(old);}catch(e){}
+   await idbWrite(JSON.stringify(db));
+  }
+  storageMode="IndexedDB";
+  showStorageStatus("✓ Progress saving on this browser",true);
+ }catch(idbError){
+  try{
+   const old=localStorage.getItem(STORAGE);
+   if(old)db=JSON.parse(old);
+   storageMode="localStorage";
+   showStorageStatus("✓ Progress saving in browser storage",true);
+  }catch(storageError){
+   storageMode="unavailable";
+   showStorageStatus("⚠ Preview blocked browser storage — progress may not survive closing this preview. Download/open the HTML in Chrome to save locally.",false);
+  }
+ }
+ if(!db||!Array.isArray(db.accounts))db={accounts:[],session:null};
+}
+function persist(){
+ const snapshot=JSON.stringify(db);
+ // Keep the synchronous fallback for browsers that support localStorage.
+ try{localStorage.setItem(STORAGE,snapshot);}catch(e){}
+ if(idb){
+  saveQueue=saveQueue.then(()=>idbWrite(snapshot)).then(()=>{
+   storageMode="IndexedDB";
+   if(!supabase)showStorageStatus("✓ Saved on this device · cloud not connected",true);
+  }).catch(()=>{
+   showStorageStatus("⚠ Could not save to browser storage.",false);
+  });
+ }
+ if(supabase&&cloudUserId){
+  cloudSaveQueue=cloudSaveQueue.then(()=>cloudSaveProfile()).then(()=>cloudMessage("Progress saved to your cloud account.")).catch(e=>cloudMessage("Cloud save failed: "+(e.message||"check connection and database setup"),false));
+ }else if(storageMode==="unavailable"&&!supabase){
+  showStorageStatus("⚠ Browser storage unavailable and cloud is not connected.",false);
+ }
+}
+function currentUser(){
+ return db.accounts.find(a=>a.username===db.session)||null;
+}
+function today(){
+ const d=new Date();
+ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function yesterday(){
+ const d=new Date();
+ d.setDate(d.getDate()-1);
+ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function level(xp){return Math.floor(xp/100)+1}
+function levelProgress(xp){return xp%100}
+
+// Game library
+const games=[
+ {name:"Pac-Man",cat:"Arcade",emoji:"🟡",rating:"—",players:"—",tag:"CLASSIC",color:"linear-gradient(135deg,#162b75,#6b2da8)",url:"https://www.google.com/logos/2010/pacman10-i.html"},
+ {name:"Slope",cat:"Arcade",emoji:"🟢",rating:"—",players:"—",tag:"3D RUNNER",color:"linear-gradient(135deg,#102d67,#12b7a6)",url:"https://slopegame.io/"},
+ {name:"Moto X3M",cat:"Racing",emoji:"🏍️",rating:"—",players:"—",tag:"STUNT RACING",color:"linear-gradient(135deg,#8b2b16,#e59a22)",url:"https://motox3m.io/"},
+ {name:"Geometry Dash",cat:"Arcade",emoji:"🟪",rating:"—",players:"—",tag:"RHYTHM PLATFORMER",color:"linear-gradient(135deg,#5220a0,#bd36d8)",url:"https://geometrydash.io/"},
+ {name:"Smash Karts",cat:"Racing",emoji:"🏎️",rating:"—",players:"—",tag:"MULTIPLAYER",color:"linear-gradient(135deg,#153c91,#e23b6b)",url:"https://smashkarts.io/"},
+ {name:"Tetris",cat:"Puzzle",emoji:"🧩",rating:"—",players:"—",tag:"CLASSIC PUZZLE",color:"linear-gradient(135deg,#173d9b,#7d3bc2)",url:"https://play.tetris.com/"},
+ {name:"Space Invaders",cat:"Arcade",emoji:"👾",rating:"—",players:"—",tag:"ALIEN SHOOTER",color:"linear-gradient(135deg,#102d36,#28a65a)",url:"https://www.crazygames.com/game/space-invaders"}
+];
+
+let category="All";
+let favorites=[];
+let selectedGame=null;
+
+function go(id){
+ document.getElementById(id).scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// Categories
+function renderCategories(){
+ const cats=["All","Trending","Adventure","Horror","Simulator","Obby","Favorites"];
+ document.getElementById("categories").innerHTML=cats.map(c=>
+ `<button class="cat ${category===c?"active":""}" onclick="setCategory('${c}')">${c==="All"?"ALL GAMES":c==="Favorites"?"💜 FAVOURITES":c.toUpperCase()}</button>`
+ ).join("");
+}
+function setCategory(c){category=c;renderCategories();renderGames()}
+
+function renderGames(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=games.filter(g=>{
+  const matchCat=category==="All"||
+   (category==="Favorites"&&favorites.includes(g.name))||
+   (category==="Trending"&&g.tag==="TRENDING")||g.cat===category;
+  return matchCat&&(g.name.toLowerCase().includes(q)||g.cat.toLowerCase().includes(q));
+ });
+ document.getElementById("gameCount").textContent=list.length+" GAMES";
+ document.getElementById("gameHeading").textContent=category==="All"?"🔥 POPULAR GAMES":category.toUpperCase()+" GAMES";
+ document.getElementById("gameGrid").innerHTML=list.length?list.map(g=>{
+  const i=games.indexOf(g);
+  return `<article class="game">
+   <div class="thumb" style="background:${g.color}">
+    <span class="tag">${g.tag}</span>${g.emoji}
+   </div>
+   <div class="details">
+    <h3>${escapeHTML(g.name)}</h3>
+    <p>${g.cat} • ZIPP ARCADE PICK</p>
+    <div class="meta"><span>⭐ ${g.rating}</span><strong>● ${g.players} players*</strong></div>
+    <div class="game-actions">
+     <button class="play" onclick="openGame(${i})">▶ PLAY</button>
+     <button class="fav" onclick="toggleFavorite('${g.name}')">${favorites.includes(g.name)?"♥":"♡"}</button>
+    </div>
+   </div>
+  </article>`;
+ }).join(""):'<div class="empty">👾 ZIPP COULD NOT FIND THAT GAME.</div>';
+}
+function toggleFavorite(name){
+ if(favorites.includes(name))favorites=favorites.filter(x=>x!==name);
+ else favorites.push(name);
+ const u=currentUser();
+ if(u){u.favorites=favorites.slice();persist()}
+ renderGames();
+ renderProfile();
+}
+
+// Account system
+function openAccount(){
+ const u=currentUser();
+ const modal=document.getElementById("accountModal");
+ const fields=document.getElementById("accountFields");
+ const actions=document.getElementById("accountActions");
+ if(u){
+  document.getElementById("modalTitle").textContent="PLAYER PROFILE";
+  document.getElementById("modalDesc").textContent="Welcome back, "+u.username+"!";
+  fields.innerHTML=`<div class="stat">
+   <strong>👾 ${escapeHTML(u.username)}</strong>
+   <small>LEVEL ${level(u.xp)} • ${u.xp} XP</small>
+   </div>`;
+  actions.innerHTML=`
+   <button class="primary" onclick="closeModal();go('profile')">VIEW PROFILE</button>
+   <button class="secondary" onclick="logout()">LOG OUT</button>`;
+ }else{
+  document.getElementById("modalTitle").textContent="JOIN ZIPP ARCADE";
+  document.getElementById("modalDesc").textContent="Create: username + email + password. Login: email + password.";
+  fields.innerHTML=`
+   <input class="field" id="username" maxlength="16" placeholder="Username">
+   <input class="field" id="email" type="email" autocomplete="email" placeholder="Email address">
+   <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password (minimum 8 characters)">`;
+  actions.innerHTML=`
+   <button class="primary" onclick="register()">CREATE ACCOUNT</button>
+   <button class="secondary" onclick="login()">LOGIN</button>`;
+ }
+ document.getElementById("accountMessage").textContent="";
+ modal.classList.add("show");
+}
+function closeModal(){document.getElementById("accountModal").classList.remove("show")}
+function accountMessage(t){document.getElementById("accountMessage").textContent=t}
+
+async function passwordHash(password){
+ const bytes=new TextEncoder().encode(password);
+ if(window.crypto&&crypto.subtle){
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return "sha256:"+Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+ }
+ // Compatibility fallback for restricted HTML previews. This is for demo accounts only,
+ // not suitable for a public production login system.
+ let h1=0x811c9dc5,h2=0x9e3779b9;
+ for(const byte of bytes){h1=Math.imul(h1^byte,0x01000193);h2=Math.imul(h2^byte,0x85ebca6b);}
+ return "preview:"+(h1>>>0).toString(16)+":"+(h2>>>0).toString(16);
+}
+async function register(){
+ const username=document.getElementById("username").value.trim();
+ const email=(document.getElementById("email")?.value||"").trim().toLowerCase();
+ const password=document.getElementById("password").value;
+ if(!/^[a-zA-Z0-9_]{3,16}$/.test(username)){accountMessage("Username: 3–16 letters, numbers or underscores.");return;}
+ if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){accountMessage("Enter a valid email address for your cloud account.");return;}
+ if(password.length<8){accountMessage("Password must be at least 8 characters.");return;}
+ if(!supabase){accountMessage("Cloud is not connected yet. The site owner must add the Supabase project URL and anon key.");return;}
+ try{
+  accountMessage("Creating your secure cloud account…");
+  const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
+  if(error)throw error;
+  if(!data.session){accountMessage("Check your email and confirm your account, then return here and log in. Your password is handled securely by Supabase.");return;}
+  cloudUserId=data.user.id;
+  const old=db.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase());
+  const u=old?{...old,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+  delete u.passwordHash;
+  if(!Array.isArray(u.favorites))u.favorites=[];
+  if(!Array.isArray(u.claimed))u.claimed=[];
+  if(!Array.isArray(u.achievements))u.achievements=[];
+  db.accounts=db.accounts.filter(a=>a.username.toLowerCase()!==username.toLowerCase());
+  db.accounts.push(u);db.session=username;
+  await cloudSaveProfile();
+  await cloudRefreshPlayers();
+  persist();refresh();openAccount();accountMessage("Cloud account created! Your existing local progress was carried over when available.");
+ }catch(e){accountMessage(e.message||"Could not create cloud account.");}
+}
+async function login(){
+ const email=(document.getElementById("email")?.value||"").trim().toLowerCase();
+ const password=document.getElementById("password").value;
+ if(!supabase){accountMessage("Cloud is not connected yet. The site owner must add the Supabase project URL and anon key.");return;}
+ if(!email){accountMessage("Enter the email address for your cloud account.");return;}
+ try{
+  accountMessage("Logging in and downloading your cloud save…");
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  cloudUserId=data.user.id;
+  let profile=await cloudLoadProfile();
+  if(!profile){
+   const username=data.user.user_metadata?.username;
+   if(!username)throw new Error("No ZIPP player profile found for this account.");
+   const old=db.accounts.find(a=>a.username.toLowerCase()===String(username).toLowerCase());
+   profile=old?{...old,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+   delete profile.passwordHash;db.accounts.push(profile);db.session=username;await cloudSaveProfile();
+  }
+  const idx=db.accounts.findIndex(a=>a.username===profile.username);
+  if(idx>=0)db.accounts[idx]={...db.accounts[idx],...profile};else db.accounts.push(profile);
+  db.session=profile.username;
+  dailyLogin(currentUser());
+  await cloudRefreshPlayers();
+  await cloudSaveProfile();
+  persist();refresh();openAccount();accountMessage("Welcome back! Your cloud progress has synced.");
+ }catch(e){accountMessage(e.message||"Login failed. Check your email and password.");}
+}
+async function logout(){
+ try{if(supabase&&cloudUserId){await cloudSaveQueue;await cloudSaveProfile();await supabase.auth.signOut();}}catch(e){cloudMessage("Signed out locally; last cloud save may not have completed.",false);}
+ cloudUserId=null;db.session=null;favorites=[];
+ persist();closeModal();refresh();
+}
+function dailyLogin(u){
+ const t=today();
+ if(u.lastLogin===t)return;
+ u.streak=u.lastLogin===yesterday()?(u.streak||1)+1:1;
+ u.lastLogin=t;
+ u.xp+=25;
+ if(u.streak%7===0)u.xp+=100;
+}
+
+// Daily quests
+const quests=[
+ {id:"first",name:"FIRST CONTACT",desc:"Play your first game today.",goal:1,reward:50,icon:"🎮"},
+ {id:"gamer",name:"ARCADE ADDICT",desc:"Play 3 games today.",goal:3,reward:100,icon:"👾"},
+ {id:"explorer",name:"DIMENSION HOPPER",desc:"Play 5 games today.",goal:5,reward:200,icon:"🚀"},
+ {id:"marathon",name:"GAME MARATHON",desc:"Play 10 games today.",goal:10,reward:350,icon:"🔥"}
+];
+function resetQuests(u){
+ if(u.questDate!==today()){
+  u.questDate=today();u.questPlays=0;u.claimed=[];
+ }
+}
+function renderQuests(){
+ const u=currentUser();
+ if(!u){
+  document.getElementById("questStats").innerHTML='<div class="stat"><strong>🔒</strong><small>Log in to track quests</small></div>';
+  document.getElementById("questGrid").innerHTML='<div class="empty">CREATE AN ACCOUNT TO START YOUR MISSIONS!</div>';
+  return;
+ }
+ resetQuests(u);persist();
+ const done=quests.filter(q=>u.questPlays>=q.goal).length;
+ document.getElementById("questStats").innerHTML=`
+ <div class="stat"><strong>${done}/${quests.length}</strong><small>Quests completed</small></div>
+ <div class="stat"><strong>${u.questPlays}</strong><small>Games played today</small></div>
+ <div class="stat"><strong>⚡ ${u.xp}</strong><small>Total XP</small></div>`;
+ document.getElementById("questGrid").innerHTML=quests.map(q=>{
+  const progress=Math.min(u.questPlays,q.goal);
+  const ready=progress>=q.goal;
+  const claimed=u.claimed.includes(q.id);
+  return `<div class="quest">
+   <div class="quest-icon">${q.icon}</div>
+   <h3>${q.name}</h3>
+   <p class="muted">${q.desc}</p>
+   <div style="display:flex;justify-content:space-between;font-size:11px">
+    <span>PROGRESS</span><b style="color:var(--green)">${progress}/${q.goal}</b>
+   </div>
+   <div class="bar"><div style="width:${progress/q.goal*100}%"></div></div>
+   <div class="reward">⚡ ${q.reward} XP</div>
+   <button class="${ready&&!claimed?"primary":"secondary"}" ${!ready||claimed?"disabled":""} onclick="claimQuest('${q.id}')">
+   ${claimed?"✓ CLAIMED":ready?"CLAIM REWARD":"LOCKED"}
+   </button>
+  </div>`;
+ }).join("");
+}
+function claimQuest(id){
+ const u=currentUser();
+ if(!u){openAccount();return}
+ resetQuests(u);
+ const q=quests.find(x=>x.id===id);
+ if(!q||u.questPlays<q.goal||u.claimed.includes(id))return;
+ u.claimed.push(id);
+ u.xp+=q.reward;
+ persist();refresh();
+ alert("QUEST COMPLETE! +"+q.reward+" XP 🎉");
+}
+
+// XP, game launches and progression
+function openGame(i){
+ selectedGame=games[i];
+ // Open the game immediately from the click, without requiring an account.
+ if(selectedGame.url){
+  window.open(selectedGame.url,"_blank","noopener,noreferrer");
+  const player=currentUser();
+  if(player){
+   resetQuests(player);
+   player.xp+=25;
+   player.plays++;
+   player.questPlays++;
+   unlockAchievements(player);
+   persist();
+   refresh();
+  }
+  return;
+ }
+ // Keep the existing details flow for any future listings without a URL.
+ const u=currentUser();
+ document.getElementById("gameEmoji").textContent=selectedGame.emoji;
+ document.getElementById("gameTitle").textContent=selectedGame.name;
+ document.getElementById("gameDescription").textContent="Explore "+selectedGame.name+" in the "+selectedGame.cat+" category.";
+ document.getElementById("gameMessage").textContent=u?"You'll earn 25 XP for launching this game.":"Log in to earn XP.";
+ document.getElementById("gameModal").classList.add("show");
+ document.getElementById("launchButton").onclick=()=>{
+  const player=currentUser();
+  if(!player){
+   document.getElementById("gameModal").classList.remove("show");
+   openAccount();return;
+  }
+  resetQuests(player);
+  player.xp+=25;
+  player.plays++;
+  player.questPlays++;
+  unlockAchievements(player);
+  persist();
+  refresh();
+  document.getElementById("gameModal").classList.remove("show");
+ };
+}
+
+// Achievements
+const achievements=[
+ {id:"newbie",name:"NEW PLAYER",desc:"Create an account.",icon:"🌟",check:u=>true},
+ {id:"gamer",name:"GAMER",desc:"Play 5 games.",icon:"🎮",check:u=>u.plays>=5},
+ {id:"veteran",name:"VETERAN",desc:"Play 25 games.",icon:"🏆",check:u=>u.plays>=25},
+ {id:"legend",name:"LEGEND",desc:"Reach 1,000 XP.",icon:"👑",check:u=>u.xp>=1000},
+ {id:"streak",name:"DEDICATED",desc:"Reach a 7-day login streak.",icon:"🔥",check:u=>u.streak>=7},
+ {id:"collector",name:"COLLECTOR",desc:"Favourite 5 games.",icon:"💜",check:u=>(u.favorites||[]).length>=5}
+];
+function unlockAchievements(u){
+ achievements.forEach(a=>{
+  if(a.check(u)&&!u.achievements.includes(a.id)){
+   u.achievements.push(a.id);
+   setTimeout(()=>alert("ACHIEVEMENT UNLOCKED! "+a.icon+" "+a.name),100);
+  }
+ });
+}
+function renderAchievements(){
+ const u=currentUser();
+ document.getElementById("badges").innerHTML=achievements.map(a=>{
+  const unlocked=u&&u.achievements.includes(a.id);
+  return `<div class="badge-card ${unlocked?"":"locked"}">
+   <div class="emoji">${unlocked?a.icon:"🔒"}</div>
+   <b>${a.name}</b><p class="progress-text">${a.desc}</p>
+   <small>${unlocked?"UNLOCKED":"LOCKED"}</small>
+  </div>`;
+ }).join("");
+}
+
+// Leaderboard
+function renderLeaderboard(){
+ const accounts=db.accounts.slice().sort((a,b)=>b.xp-a.xp||a.username.localeCompare(b.username));
+ const top=accounts.slice(0,3);
+ const order=[1,0,2];
+ const medals=["🥇","🥈","🥉"];
+ document.getElementById("podium").innerHTML=order.map(i=>{
+  const a=top[i];
+  return `<div><strong>${a?medals[i]:"—"}</strong>
+  <b>${a?escapeHTML(a.username):"EMPTY"}</b>
+  <small>${a?a.xp+" XP":"Awaiting players"}</small></div>`;
+ }).join("");
+ document.getElementById("rankRows").innerHTML=accounts.length?accounts.map((a,i)=>
+ `<tr><td style="color:var(--purple)">#${i+1}</td>
+ <td>👾 ${escapeHTML(a.username)} ${db.session===a.username?"(YOU)":""}</td>
+ <td>${a.xp} XP</td></tr>`).join(""):'<tr><td colspan="3">No players yet. Create an account!</td></tr>';
+}
+
+// Friends and followers: local-browser social graph (not cross-device accounts).
+function ensureSocialFields(a){
+ if(!Array.isArray(a.friends))a.friends=[];
+ if(!Array.isArray(a.friendRequests))a.friendRequests=[];
+ if(!Array.isArray(a.sentRequests))a.sentRequests=[];
+ if(!Array.isArray(a.followers))a.followers=[];
+ if(!Array.isArray(a.following))a.following=[];
+}
+function accountByName(name){return db.accounts.find(a=>a.username.toLowerCase()===String(name).toLowerCase())||null}
+function socialButton(label,action,kind='secondary'){
+ return `<button class="${kind}" onclick="${action}">${label}</button>`;
+}
+function sendFriendRequest(name){
+ const me=currentUser(),target=accountByName(name);
+ if(!me){openAccount();return}
+ if(!target||target.username===me.username)return;
+ ensureSocialFields(me);ensureSocialFields(target);
+ if(me.friends.includes(target.username)){alert('You are already friends.');return}
+ if(target.friendRequests.includes(me.username)){alert('Your request is already waiting for them.');return}
+ if(me.friendRequests.includes(target.username)){
+  acceptFriendRequest(target.username);return;
+ }
+ if(!me.sentRequests.includes(target.username))me.sentRequests.push(target.username);
+ if(!target.friendRequests.includes(me.username))target.friendRequests.push(me.username);
+ persist();renderSocial();
+}
+function acceptFriendRequest(name){
+ const me=currentUser(),sender=accountByName(name);if(!me||!sender)return;
+ ensureSocialFields(me);ensureSocialFields(sender);
+ me.friendRequests=me.friendRequests.filter(x=>x!==sender.username);
+ sender.sentRequests=sender.sentRequests.filter(x=>x!==me.username);
+ if(!me.friends.includes(sender.username))me.friends.push(sender.username);
+ if(!sender.friends.includes(me.username))sender.friends.push(me.username);
+ // Friends automatically follow one another; following can later be removed independently.
+ if(!me.following.includes(sender.username))me.following.push(sender.username);
+ if(!sender.followers.includes(me.username))sender.followers.push(me.username);
+ if(!sender.following.includes(me.username))sender.following.push(me.username);
+ if(!me.followers.includes(sender.username))me.followers.push(sender.username);
+ persist();renderSocial();
+}
+function declineFriendRequest(name){
+ const me=currentUser(),sender=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.friendRequests=me.friendRequests.filter(x=>x!==name);
+ if(sender){ensureSocialFields(sender);sender.sentRequests=sender.sentRequests.filter(x=>x!==me.username)}
+ persist();renderSocial();
+}
+function cancelFriendRequest(name){
+ const me=currentUser(),target=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.sentRequests=me.sentRequests.filter(x=>x!==name);
+ if(target){ensureSocialFields(target);target.friendRequests=target.friendRequests.filter(x=>x!==me.username)}
+ persist();renderSocial();renderSocialSearch();
+}
+function removeFriend(name){
+ const me=currentUser(),other=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.friends=me.friends.filter(x=>x!==name);
+ if(other){ensureSocialFields(other);other.friends=other.friends.filter(x=>x!==me.username)}
+ persist();renderSocial();
+}
+function toggleFollow(name){
+ const me=currentUser(),target=accountByName(name);if(!me){openAccount();return}
+ if(!target||target.username===me.username)return;
+ ensureSocialFields(me);ensureSocialFields(target);
+ if(me.following.includes(target.username)){
+  me.following=me.following.filter(x=>x!==target.username);
+  target.followers=target.followers.filter(x=>x!==me.username);
+ }else{
+  me.following.push(target.username);
+  if(!target.followers.includes(me.username))target.followers.push(me.username);
+ }
+ persist();renderSocial();renderSocialSearch();
+}
+function socialRows(names,empty,makeActions){
+ if(!names.length)return `<p class="muted">${empty}</p>`;
+ return names.map(name=>{
+  const a=accountByName(name);if(!a)return '';
+  return `<div class="social-row"><span class="social-name">👾 ${escapeHTML(a.username)}</span><span class="social-actions">${makeActions?makeActions(a):''}</span></div>`;
+ }).join('');
+}
+function renderSocialSearch(){
+ const out=document.getElementById('socialSearchResults');if(!out)return;
+ const me=currentUser(),q=(document.getElementById('playerSearch')?.value||'').trim().toLowerCase();
+ if(!me){out.innerHTML='<p class="muted">Log in to find and connect with players.</p>';return}
+ const matches=db.accounts.filter(a=>a.username!==me.username&&(!q||a.username.toLowerCase().includes(q)));
+ out.innerHTML='<h3>🔎 PLAYER DISCOVERY</h3>'+(matches.length?matches.map(a=>{
+  ensureSocialFields(me);ensureSocialFields(a);
+  const isFriend=me.friends.includes(a.username),sent=me.sentRequests.includes(a.username),incoming=me.friendRequests.includes(a.username),following=me.following.includes(a.username);
+  let friendAction=isFriend?socialButton('FRIENDS ✓',`removeFriend('${escapeHTML(a.username)}')`):incoming?socialButton('ACCEPT REQUEST',`acceptFriendRequest('${escapeHTML(a.username)}')`,'primary'):sent?socialButton('CANCEL REQUEST',`cancelFriendRequest('${escapeHTML(a.username)}')`):socialButton('ADD FRIEND',`sendFriendRequest('${escapeHTML(a.username)}')`,'primary');
+  let followAction=socialButton(following?'UNFOLLOW':'FOLLOW',`toggleFollow('${escapeHTML(a.username)}')`);
+  return `<div class="social-row"><div><span class="social-name">👾 ${escapeHTML(a.username)}</span><span class="social-pill">LVL ${level(a.xp||0)}</span><div class="muted">${a.xp||0} XP · ${(a.followers||[]).length} followers</div></div><span class="social-actions">${friendAction}${followAction}</span></div>`;
+ }).join(''):'<p class="muted">No players found. Create another account in this browser to test the social system.</p>');
+}
+function renderSocial(){
+ const me=currentUser();
+ if(!me){
+  ['socialStats','friendRequests','friendList','followingList','followersList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<p class="muted">Log in to use the social system.</p>'});
+  renderSocialSearch();return;
+ }
+ ensureSocialFields(me);
+ const stat=document.getElementById('socialStats');
+ stat.innerHTML=`<div class="stat"><strong>${me.friends.length}</strong><small>FRIENDS</small></div><div class="stat"><strong>${me.followers.length}</strong><small>FOLLOWERS</small></div><div class="stat"><strong>${me.following.length}</strong><small>FOLLOWING</small></div><div class="stat"><strong>${me.friendRequests.length}</strong><small>NEW REQUESTS</small></div>`;
+ document.getElementById('friendRequests').innerHTML=socialRows(me.friendRequests,'No pending requests.',a=>socialButton('ACCEPT',`acceptFriendRequest('${escapeHTML(a.username)}')`,'primary')+socialButton('DECLINE',`declineFriendRequest('${escapeHTML(a.username)}')`));
+ document.getElementById('friendList').innerHTML=socialRows(me.friends,'No friends yet.',a=>socialButton('REMOVE',`removeFriend('${escapeHTML(a.username)}')`));
+ document.getElementById('followingList').innerHTML=socialRows(me.following,'You are not following anyone.',a=>socialButton('UNFOLLOW',`toggleFollow('${escapeHTML(a.username)}')`));
+ document.getElementById('followersList').innerHTML=socialRows(me.followers,'No followers yet.',a=>socialButton(me.following.includes(a.username)?'UNFOLLOW':'FOLLOW',`toggleFollow('${escapeHTML(a.username)}')`));
+ renderSocialSearch();
+}
+
+// Player profile
+function renderProfile(){
+ const u=currentUser();
+ if(!u){
+  document.getElementById("profileContent").innerHTML='Log in to see your profile.';
+  return;
+ }
+ const rank=db.accounts.slice().sort((a,b)=>b.xp-a.xp).findIndex(a=>a.username===u.username)+1;
+ document.getElementById("profileContent").innerHTML=`
+ <div class="profile-avatar">👾</div>
+ <h2 style="color:var(--green)">${escapeHTML(u.username)}</h2>
+ <div class="stats">
+  <div class="stat"><strong>${level(u.xp)}</strong><small>PLAYER LEVEL</small></div>
+  <div class="stat"><strong>${u.xp}</strong><small>TOTAL XP</small></div>
+  <div class="stat"><strong>#${rank}</strong><small>GLOBAL RANK</small></div>
+  <div class="stat"><strong>${u.plays}</strong><small>GAMES LAUNCHED</small></div>
+  <div class="stat"><strong>${u.streak} 🔥</strong><small>LOGIN STREAK</small></div>
+  <div class="stat"><strong>${u.achievements.length}</strong><small>BADGES EARNED</small></div>
+  <div class="stat"><strong>${(u.friends||[]).length}</strong><small>FRIENDS</small></div>
+  <div class="stat"><strong>${(u.followers||[]).length}</strong><small>FOLLOWERS</small></div>
+ </div>
+ <div style="display:flex;justify-content:space-between">
+  <b>LEVEL ${level(u.xp)}</b><span>${levelProgress(u.xp)}/100 XP</span>
+ </div>
+ <div class="bar"><div style="width:${levelProgress(u.xp)}%"></div></div>
+ <p class="muted">XP TO NEXT LEVEL: ${100-levelProgress(u.xp)}</p>
+ <p class="muted">FAVOURITE GAMES: ${(u.favorites||[]).length}</p>`;
+}
+
+// Home dashboard
+function renderHomeStats(){
+ const u=currentUser();
+ document.getElementById("homeStats").innerHTML=`
+ <div class="stat"><strong>${u?level(u.xp):"—"}</strong><small>YOUR LEVEL</small></div>
+ <div class="stat"><strong>${u?u.xp:0}</strong><small>YOUR XP</small></div>
+ <div class="stat"><strong>${u?u.streak:0} 🔥</strong><small>LOGIN STREAK</small></div>
+ <div class="stat"><strong>${db.accounts.length}</strong><small>LOCAL PLAYERS</small></div>`;
+}
+
+// Main refresh
+function refresh(){
+ const u=currentUser();
+ const button=document.getElementById("accountButton");
+ button.textContent=u?"👤 "+u.username:"👤 LOGIN";
+ if(u){
+  if(!u.achievements)u.achievements=[];
+  if(!u.favorites)u.favorites=[];
+  if(!u.streak)u.streak=1;
+  ensureSocialFields(u);
+  favorites=u.favorites.slice();
+  unlockAchievements(u);
+ }
+ renderHomeStats();
+ renderGames();
+ renderQuests();
+ renderLeaderboard();
+ renderAchievements();
+ renderProfile();
+ renderSocial();
+ persist();
+}
+
+// ZIPP SMART MODE — a broad offline reference library with relevance scoring and conversation context.
+// This is a local knowledge engine, not a hidden or remotely connected language model.
+const zippKnowledge = [
+{title:"How computers work",keys:["computer","computers","hardware","software","binary","processor","cpu"],answer:"A computer takes input, processes it, stores information and produces output. The CPU executes instructions, RAM holds information currently in use, storage keeps files when power is off, and the operating system coordinates hardware and apps. Most digital information is represented using bits (0s and 1s)."},
+{title:"How the internet works",keys:["internet","web","website","browser","wifi","wi-fi","router","dns","ip address"],answer:"The internet is a global network of connected networks. Your device sends data in packets using internet protocols. Routers move packets toward their destination; DNS translates domain names into IP addresses; and HTTPS encrypts traffic between your browser and a website. Wi-Fi is just one way your device connects to a local network."},
+{title:"Artificial intelligence",keys:["artificial intelligence"," ai ","machine learning","neural network","chatbot","large language model","llm","generative ai"],answer:"Artificial intelligence is a broad field focused on building systems that perform tasks associated with intelligence. Machine learning finds patterns in data; neural networks are layered mathematical models; and large language models learn statistical patterns in text so they can generate responses. They can be useful but may make mistakes, so important claims should be checked."},
+{title:"How language models work",keys:["how does ai work","how do language models work","how chatgpt works","transformer","tokens","prompt"],answer:"A language model converts text into tokens, processes them through a neural network and predicts likely next tokens based on patterns learned during training. Modern transformer models use attention to relate different parts of the context. They do not retrieve every answer from a perfect database and can confidently produce incorrect information."},
+{title:"Programming basics",keys:["programming","coding","code","algorithm","variable","function","debugging","developer"],answer:"Programming means writing instructions a computer can execute. Variables store values, conditionals choose between paths, loops repeat work, and functions package reusable behaviour. A good way to learn is to build a tiny project, test it often, read error messages carefully and change one thing at a time."},
+{title:"HTML, CSS and JavaScript",keys:["html","css","javascript","website","web development","frontend","front end","dom"],answer:"HTML describes the structure and meaning of a web page, CSS controls its appearance and layout, and JavaScript adds behaviour and interactivity. The browser parses HTML, applies CSS and runs JavaScript. For a small project, keeping these parts organised and using the browser developer console makes debugging much easier."},
+{title:"Python programming",keys:["python language","python programming","learn python","python code"],answer:"Python is a general-purpose programming language known for readable syntax. It is used for automation, data analysis, web services, AI and scripting. Start with variables, strings, lists, dictionaries, loops, functions and files. Then build small projects such as a quiz, calculator or file organiser."},
+{title:"Cybersecurity basics",keys:["cybersecurity","hacking","phishing","malware","ransomware","password security","two factor","2fa"],answer:"Cybersecurity is the practice of protecting devices, accounts and data. Use unique passwords stored in a password manager, enable multi-factor authentication, install updates, back up important files and be cautious with unexpected links or attachments. Ethical security testing requires explicit permission; accessing someone else's system without permission is not okay."},
+{title:"How encryption works",keys:["encryption","cryptography","https","public key","private key","cipher"],answer:"Encryption transforms readable information (plaintext) into unreadable ciphertext using a key. Symmetric encryption uses the same secret key to encrypt and decrypt; public-key cryptography uses a mathematically linked public/private key pair. HTTPS combines cryptographic techniques to authenticate websites and protect data in transit."},
+{title:"Computer components",keys:["gpu","graphics card","ram","ssd","hard drive","motherboard","power supply","pc parts"],answer:"A PC's CPU runs general instructions, the GPU handles graphics and parallel workloads, RAM provides fast temporary working space, an SSD stores data persistently, the motherboard connects components, and the power supply provides electricity. Compatibility matters: check CPU socket, memory type, case size, power connectors and GPU clearance."},
+{title:"The solar system",keys:["solar system","planets","planet order","sun","jupiter","saturn","mars","venus","mercury","uranus","neptune"],answer:"The Solar System contains the Sun, eight recognised planets, dwarf planets, moons, asteroids, comets and dust. In order from the Sun: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. The inner planets are rocky; the outer planets are giant worlds with thick atmospheres and many moons."},
+{title:"Black holes",keys:["black hole","event horizon","schwarzschild","singularity","spaghettification"],answer:"A black hole is a region of spacetime where gravity is so strong that inside its event horizon, no future-directed path can escape to the outside. The event horizon is not a solid surface. The Schwarzschild radius is the horizon radius for an ideal, non-rotating, uncharged black hole: r = 2GM/c². The singularity predicted by classical general relativity signals that a deeper theory is needed."},
+{title:"White holes and wormholes",keys:["white hole","wormhole","einstein-rosen","portal","black hole opposite"],answer:"A white hole is a hypothetical solution related mathematically to a black hole, with matter and light able to leave but not enter from the outside. No white hole has been observed. A wormhole is a hypothetical spacetime geometry connecting distant regions; traversable wormholes would require unusual conditions and have not been shown to exist. There is no evidence that black holes are usable portals."},
+{title:"Relativity",keys:["relativity","einstein","time dilation","special relativity","general relativity","spacetime"],answer:"Special relativity says measurements of time and space depend on relative motion, and that the speed of light in vacuum is the same for inertial observers. General relativity describes gravity as the curvature of spacetime caused by mass and energy. It predicts effects such as gravitational time dilation, light bending and black holes."},
+{title:"Quantum physics",keys:["quantum","quantum mechanics","superposition","entanglement","uncertainty principle","wave particle"],answer:"Quantum mechanics describes nature at very small scales. Systems can be represented by probability amplitudes, measurements yield particular outcomes, and some properties cannot simultaneously have arbitrarily precise values. Superposition is not simply an object being classically in two places; it is a mathematical combination of possible states. Entanglement creates correlations that classical physics cannot explain."},
+{title:"Atoms and elements",keys:["atom","atoms","proton","neutron","electron","periodic table","element","molecule"],answer:"An atom has a nucleus containing protons and usually neutrons, surrounded by electrons described by quantum states. The number of protons defines the element. Atoms can bond to form molecules, and the periodic table organises elements by atomic number and recurring chemical properties."},
+{title:"DNA and genetics",keys:["dna","genetics","gene","chromosome","heredity","mutation","genome"],answer:"DNA is a molecule that stores hereditary information using four chemical bases: A, T, C and G. A gene is a stretch of DNA that contributes to a functional product, often a protein or regulatory RNA. Chromosomes package DNA. Variants can arise through mutation and be inherited, while environment also influences many traits."},
+{title:"Evolution",keys:["evolution","natural selection","darwin","species","adaptation","fossil"],answer:"Evolution is change in inherited characteristics of populations across generations. Natural selection occurs when heritable differences affect survival or reproduction, causing some variants to become more common. Mutation, gene flow and genetic drift also shape populations. Individuals do not evolve during their lifetime; populations evolve over generations."},
+{title:"Human brain",keys:["brain","neurons","memory","consciousness","nervous system","neuroscience"],answer:"The brain is a network of billions of neurons and supporting cells. Neurons communicate through electrical signals and chemical synapses. Different networks contribute to movement, perception, language, emotion, memory and decision-making. These functions are distributed and interactive rather than each being controlled by one tiny isolated brain region."},
+{title:"Climate change",keys:["climate change","global warming","greenhouse effect","carbon dioxide","co2","emissions"],answer:"Earth is warming mainly because human activities increase heat-trapping greenhouse gases, especially carbon dioxide from fossil fuels and land-use change. The greenhouse effect is natural, but adding more greenhouse gases strengthens it. Impacts include rising sea levels, hotter extremes and shifts in rainfall. Cutting emissions and adapting infrastructure both matter."},
+{title:"Weather versus climate",keys:["weather","climate","forecast","humidity","pressure","wind"],answer:"Weather describes short-term atmospheric conditions such as temperature, rain and wind. Climate describes long-term patterns and statistics, usually assessed over decades. A cold day does not disprove global warming, just as one hot day does not establish a climate trend."},
+{title:"Oceans",keys:["ocean","sea","marine","tides","coral reef","deep sea"],answer:"The ocean covers about 71% of Earth's surface and regulates climate by storing and moving heat and carbon. Tides are driven mainly by the Moon's gravity, with the Sun also contributing. Ocean ecosystems range from sunlit coral reefs to dark deep-sea habitats, and they face pressures including warming, acidification and pollution."},
+{title:"Volcanoes",keys:["volcano","volcanic","lava","magma","eruption"],answer:"A volcano is an opening where magma, gases and fragments can reach the surface. Magma is molten rock underground; once it erupts, it is called lava. Eruptions vary from relatively gentle lava flows to explosive events driven by gas-rich magma, water interaction and other factors."},
+{title:"Earthquakes",keys:["earthquake","tectonic plates","fault","richter","magnitude","seismic"],answer:"Earthquakes occur when stress accumulated in rocks is released, often as tectonic plates move along faults. Magnitude measures the size of an earthquake; intensity describes shaking and effects at a location. During shaking, drop, cover and hold on, stay away from windows, and follow local emergency advice."},
+{title:"The water cycle",keys:["water cycle","evaporation","condensation","precipitation","rain"],answer:"The water cycle moves water through evaporation, transpiration, condensation, precipitation, infiltration and runoff. Sunlight drives evaporation; cooling water vapour can form clouds; and water returns to the surface as rain, snow or other precipitation. The cycle links oceans, atmosphere, land and living things."},
+{title:"Mathematics and algebra",keys:["maths","math","algebra","equation","solve for x","variable in maths"],answer:"Algebra uses symbols to represent numbers and relationships. To solve an equation, perform the same valid operation on both sides to isolate the unknown. For example, 3x + 5 = 20 gives 3x = 15, so x = 5. Check a solution by substituting it into the original equation."},
+{title:"Fractions and percentages",keys:["fraction","fractions","percentage","percent","decimal","ratio"],answer:"A fraction represents part of a whole: the numerator counts parts and the denominator tells how many equal parts make the whole. A percentage is a fraction out of 100. To convert a decimal to a percentage, multiply by 100; for example, 0.35 = 35%. To find 20% of 80, calculate 0.20 × 80 = 16."},
+{title:"Geometry",keys:["geometry","area","perimeter","volume","triangle","circle","rectangle"],answer:"Geometry studies shapes, sizes and spatial relationships. Rectangle area is length × width; triangle area is ½ × base × height; circle area is πr²; and a circle's circumference is 2πr. Volume measures 3D space, while area measures a 2D surface."},
+{title:"Statistics",keys:["statistics","average","mean","median","mode","standard deviation","probability"],answer:"Statistics helps summarise and reason about data. The mean is the arithmetic average, the median is the middle value after sorting, and the mode is the most frequent value. Probability ranges from 0 (impossible) to 1 (certain). A sample can be misleading if it is small, biased or unrepresentative."},
+{title:"Scientific method",keys:["scientific method","hypothesis","experiment","science experiment","theory vs law"],answer:"The scientific method is a flexible process: ask a question, form a testable hypothesis, design a fair test, collect observations, analyse results and share conclusions. Good experiments control relevant variables, use reliable measurements and can be repeated. A scientific theory is a well-supported explanatory framework, not merely a guess."},
+{title:"World history",keys:["history","ancient history","civilisation","civilization","historical period"],answer:"History studies human societies through evidence such as documents, objects, buildings, oral histories and environmental records. Historical explanations compare sources, consider who created them and why, and distinguish evidence from interpretation. If you name a period, country or event, I can explain it in more detail."},
+{title:"Ancient Egypt",keys:["egypt","ancient egypt","pharaoh","pyramid","hieroglyph"],answer:"Ancient Egyptian civilisation developed along the Nile, whose predictable floods supported agriculture and trade. Pharaohs ruled as kings with religious and political authority. Egyptians built monumental tombs, developed hieroglyphic writing and created sophisticated systems of administration, engineering and art."},
+{title:"Ancient Greece",keys:["ancient greece","greek","athens","sparta","olympics","greek mythology"],answer:"Ancient Greece consisted of independent city-states with different political systems. Athens is associated with an early form of direct democracy for a limited group of citizens; Sparta developed a strongly militarised society. Greek thinkers, artists and writers influenced philosophy, mathematics, theatre, politics and later cultures."},
+{title:"Roman Empire",keys:["roman empire","rome","roman republic","caesar","colosseum"],answer:"Rome grew from a city-state into a republic and then an empire spanning much of the Mediterranean. Roman roads, law, engineering, military organisation and Latin shaped later societies. The western empire's imperial government ended in the fifth century CE, while the eastern Roman Empire continued for nearly another thousand years."},
+{title:"World War Two",keys:["world war 2","world war ii","ww2","second world war","holocaust","d-day"],answer:"World War II lasted from 1939 to 1945 and involved many countries across Europe, Asia, Africa and the Pacific. It began in Europe after Nazi Germany invaded Poland. The war included the Holocaust, mass civilian suffering, major resistance movements and the use of atomic bombs against Hiroshima and Nagasaki. It reshaped international politics and led to the founding of the United Nations."},
+{title:"Australian history",keys:["australia history","australian history","first nations","aboriginal history","torres strait","federation australia"],answer:"Aboriginal and Torres Strait Islander peoples have lived across the continent and islands for tens of thousands of years, with diverse cultures, languages and knowledge systems. British colonisation began in 1788 and brought dispossession and profound harm. The Australian colonies federated in 1901. A full account includes First Nations histories, migration, conflict, policy and changing national identity."},
+{title:"Geography",keys:["geography","continents","countries","capital cities","latitude","longitude"],answer:"Geography studies places, landscapes, environments and how people interact with them. Physical geography examines landforms, climate and ecosystems; human geography examines populations, cities, culture and economies. Maps use coordinates such as latitude and longitude to locate places."},
+{title:"Economics",keys:["economics","inflation","recession","supply and demand","interest rate","gdp","economy"],answer:"Economics studies how people and societies make choices with limited resources. Supply and demand influence prices; inflation is a sustained rise in the general price level; GDP measures the value of final goods and services produced in an economy over a period. Interest rates affect borrowing, saving and spending. Economic indicators each measure different things."},
+{title:"Personal finance",keys:["budget","saving money","savings","compound interest","investing basics","finance"],answer:"A practical personal-finance starting point is to track income and spending, build an emergency buffer, pay attention to high-interest debt and set clear savings goals. Compound interest means returns can earn further returns over time. Investments carry risk, and diversification can reduce concentration risk but cannot guarantee gains."},
+{title:"Democracy and government",keys:["democracy","government","election","parliament","constitution","politics"],answer:"A democracy is a system in which political authority is ultimately accountable to the people, often through elections and representative institutions. Systems differ: some are parliamentary, some presidential, and many include courts, constitutions and multiple levels of government. The details depend on the country."},
+{title:"Philosophy",keys:["philosophy","ethics","logic","existentialism","stoicism","free will"],answer:"Philosophy examines fundamental questions about knowledge, reality, reasoning, values and meaning. Ethics asks what makes actions right or wrong; epistemology studies knowledge; metaphysics studies what exists; and logic studies valid reasoning. Philosophical questions often have competing arguments rather than one universally accepted answer."},
+{title:"Psychology",keys:["psychology","behaviour","behavior","personality","motivation","cognitive bias"],answer:"Psychology is the scientific study of mind and behaviour. It includes learning, memory, perception, emotion, development, social behaviour and mental processes. Psychological findings describe patterns across groups; they do not automatically diagnose an individual. Strong studies use careful methods and acknowledge uncertainty."},
+{title:"Learning and memory",keys:["how to learn","study tips","memory techniques","remember things","revision","exam study"],answer:"Learning improves when you actively retrieve information instead of only rereading it. Try spaced practice, practice questions, explaining ideas in your own words and mixing related problem types. Short focused sessions with breaks can help. Sleep supports memory consolidation, so an all-nighter is usually a poor trade."},
+{title:"Writing better",keys:["writing","essay","grammar","punctuation","story writing","paragraph"],answer:"Clear writing starts with knowing the reader and purpose. Put the main point early, organise ideas into logical sections, use concrete examples and remove words that do not add meaning. For an essay, make a claim, support it with evidence, explain the evidence and connect it back to the question."},
+{title:"Creativity and brainstorming",keys:["creative","creativity","brainstorm","ideas","invent","inspiration"],answer:"A useful brainstorming method is to generate many ideas before judging them. Set a clear constraint, make rough variations, combine unrelated ideas, then choose a few to test. Small prototypes reveal more than endless planning. If you tell me what you're making, I can help generate and refine concepts."},
+{title:"Health and wellbeing basics",keys:["healthy habits","wellbeing","well-being","sleep","exercise","hydration","nutrition"],answer:"General wellbeing is supported by consistent sleep, regular movement, varied nutritious food, hydration, social connection and time to recover from stress. Individual needs differ, and general information is not a personal medical assessment. For persistent symptoms or urgent concerns, speak with a qualified health professional."},
+{title:"Nutrition basics",keys:["nutrition","protein","carbohydrates","carbs","fat","vitamins","calories"],answer:"Food provides energy and nutrients. Carbohydrates are a major energy source, protein supplies amino acids used to build and repair tissues, and fats support cell membranes and help absorb certain vitamins. A varied diet with vegetables, fruit, whole grains and suitable protein sources is a useful general pattern; needs vary by person."},
+{title:"Exercise basics",keys:["fitness","workout","strength training","cardio","muscle","exercise plan"],answer:"Physical activity can support cardiovascular health, strength, balance, mood and sleep. A balanced routine often includes aerobic activity, muscle-strengthening work and mobility or balance practice. Start at a manageable level, increase gradually and adapt activity to your abilities and health circumstances."},
+{title:"Music theory",keys:["music theory","notes","chords","scales","tempo","rhythm","key signature"],answer:"Music theory describes patterns used in music. A melody is a sequence of pitches; harmony describes how pitches sound together; rhythm organises time; and tempo is the speed of the beat. A major scale follows the interval pattern tone-tone-semitone-tone-tone-tone-semitone."},
+{title:"Photography",keys:["photography","camera","aperture","shutter speed","iso","composition"],answer:"The exposure triangle links aperture, shutter speed and ISO. Aperture controls lens opening and depth of field; shutter speed controls how long the sensor receives light and how motion appears; ISO affects signal amplification and image noise. Composition tools such as leading lines and framing help guide attention."},
+{title:"Movies and storytelling",keys:["movie","movies","film","cinema","storytelling","plot","character arc"],answer:"Stories often create engagement through characters with goals, obstacles, choices and consequences. A plot is the sequence of events; a theme is an underlying idea; and character development shows how a person changes or reveals themselves. Films also use framing, editing, sound, colour and pacing to shape emotion."},
+{title:"Gaming genres",keys:["game genres","genres","fps game","rpg game","moba","roguelike","metroidvania","strategy game"],answer:"Game genres describe common play patterns. FPS games focus on first-person shooting; RPGs emphasise character development; strategy games reward planning; platformers focus on movement and timing; roguelikes use repeated runs and procedural variation; and MOBAs centre on team-based competitive arenas. Many games blend genres."},
+{title:"Game engines",keys:["game engine","unity engine","unreal engine","godot engine","game development engine"],answer:"A game engine provides tools for rendering, physics, audio, animation, input and asset management. Unity is widely used for 2D and 3D projects; Unreal Engine is known for high-end 3D workflows and visual scripting; Godot is an open-source engine with a lightweight workflow. The best engine depends on your project and learning style."},
+{title:"Roblox",keys:["roblox","robux","roblox studio","roblox scripting","luau"],answer:"Roblox is an online platform where users play and create experiences. Roblox Studio is its creation environment, and Luau is the scripting language used for game logic. Experiences can be obstacle courses, role-playing worlds, simulators and much more. Use privacy controls carefully and be cautious with trades, links and purchases."},
+{title:"Minecraft",keys:["minecraft","redstone","survival mode","creative mode","ender dragon","crafting"],answer:"Minecraft is a sandbox game built around mining, crafting, exploration and construction. Survival mode adds resource management and danger; Creative mode provides broad building freedom. Redstone lets players build logic-like mechanisms, and multiplayer editions or versions need to be compatible for friends to join the same world."},
+{title:"PlayStation",keys:["playstation","ps5","ps4","sony console"],answer:"PlayStation is Sony's console family. When comparing models, consider disc support, storage, performance, backwards compatibility, subscriptions and the games you want. Console revisions and prices change, so check the exact model and current local retailer details before buying."},
+{title:"Xbox",keys:["xbox","series x","series s","game pass","microsoft console"],answer:"Xbox is Microsoft's gaming ecosystem. Series X and Series S differ in performance, price and disc support. Game Pass is a subscription catalogue whose plans and included games can change. Compare the exact subscription tier, game availability in your region and where your friends play."},
+{title:"Nintendo",keys:["nintendo","switch","switch 2","mario","zelda","pokemon","pokémon"],answer:"Nintendo is known for consoles and franchises such as Mario, Zelda, Pokémon and Animal Crossing. Switch-style hybrid systems combine handheld and TV play, but compatibility varies by model and title. Check official compatibility information before buying games or accessories."},
+{title:"PC gaming performance",keys:["pc gaming","gaming pc","low fps","frames per second","stuttering","graphics settings"],answer:"For smoother PC gaming, update graphics drivers, close unnecessary background tasks, check temperatures, ensure the game uses the intended GPU and adjust demanding settings such as ray tracing, shadows and resolution. FPS means frames per second; frame-time consistency matters too, because uneven frame delivery can feel choppy even when average FPS looks high."},
+{title:"Internet lag in games",keys:["ping","packet loss","network lag","online lag","rubber banding","high latency"],answer:"Online lag is often caused by high latency, jitter, packet loss, Wi-Fi interference or overloaded servers. Try Ethernet, pause downloads, restart network equipment and choose a nearby server region. Low FPS is different: it is a rendering-performance issue on your device, not necessarily your internet connection."},
+{title:"Game design",keys:["game design","level design","game mechanics","balancing a game","player experience"],answer:"Game design shapes the rules, goals, feedback and choices that create the player experience. Strong design makes objectives understandable, gives useful feedback, introduces complexity gradually and balances challenge with player skill. Playtesting is essential because what seems clear to a designer may confuse a new player."},
+{title:"Space exploration",keys:["space exploration","nasa","spacecraft","rocket","mars mission","satellite"],answer:"Space exploration uses robotic spacecraft and crewed missions to study Earth, the Moon, planets, asteroids and the wider universe. Rockets work by expelling propellant to produce thrust. Satellites support communication, navigation, weather observation and science. Missions must manage radiation, temperature, power, communication delays and limited supplies."},
+{title:"Stars and galaxies",keys:["star","stars","galaxy","milky way","supernova","neutron star"],answer:"Stars form when clouds of gas and dust collapse under gravity. Fusion in their cores releases energy that balances gravity for much of a star's life. Their final stages depend on mass: some become white dwarfs, while massive stars can leave neutron stars or black holes. Galaxies contain stars, gas, dust, dark matter and often central supermassive black holes."},
+{title:"The Moon",keys:["moon","lunar","moon phases","lunar eclipse","solar eclipse"],answer:"The Moon is Earth's natural satellite. Its phases occur because we see different portions of its sunlit half as it orbits Earth. A lunar eclipse happens when Earth moves between the Sun and Moon; a solar eclipse happens when the Moon passes between Earth and the Sun. Never look directly at the Sun without proper certified eclipse protection."},
+{title:"Religious and cultural literacy",keys:["religion","culture","belief systems","mythology","tradition"],answer:"Religions and cultural traditions are diverse systems of belief, practice, community and history. They should be understood in their own contexts rather than treated as identical or unchanging. If you name a tradition or question, I can give a neutral overview and distinguish historical evidence from faith claims."},
+{title:"Languages and translation",keys:["language learning","learn a language","translation","translate","vocabulary","pronunciation"],answer:"Learning a language involves listening, speaking, reading and writing. Spaced repetition helps vocabulary stick, while short daily conversations build fluency. Grammar gives patterns for constructing meaning, but real usage also depends on context, register and culture. Tell me the language and your current level and I can practise with you."},
+{title:"Decision making",keys:["decision","make a decision","pros and cons","choose between","which is better"],answer:"For a difficult decision, list the options, identify what matters most, separate must-haves from nice-to-haves, estimate trade-offs and consider what happens if you wait. A weighted comparison can help, but numbers should support judgement rather than pretend uncertain preferences are exact."},
+{title:"Critical thinking",keys:["critical thinking","misinformation","fact check","bias","logical fallacy","evidence"],answer:"Critical thinking means checking how a claim is supported. Ask what evidence would change your mind, whether sources are independent, whether the sample is representative and whether the conclusion follows from the data. Watch for correlation being mistaken for causation, cherry-picked examples and false either-or choices."},
+{title:"How search engines work",keys:["search engine","google search","web search","indexing","ranking algorithm"],answer:"Search engines discover pages through crawling, organise information in an index and rank results for a query. Ranking systems use many signals, such as relevance, quality, language and context. Search results are not a guarantee of truth; compare reliable sources, dates and original documents."},
+{title:"Databases",keys:["database","sql","database table","query","relational database","nosql"],answer:"A database stores and organises information so it can be queried and updated. Relational databases use tables and relationships, often accessed with SQL. Indexes can speed up lookups, while transactions help keep changes consistent. Choose a data model based on how the application needs to read and change information."},
+{title:"Cloud computing",keys:["cloud computing","cloud server","hosting","serverless","cloud storage"],answer:"Cloud computing provides computing resources such as servers, storage and databases over a network. It can make scaling and deployment easier, but introduces costs, permissions, security and provider-dependency considerations. Serverless functions run code on demand without you managing a traditional always-on server."},
+{title:"Electricity",keys:["electricity","voltage","current","resistance","ohms law","circuit"],answer:"Electric current is the flow of electric charge. Voltage is electric potential difference, and resistance opposes current. Ohm's law for many components is V = I × R. Electrical safety matters: do not open mains-powered equipment or work on live circuits unless qualified."},
+{title:"Renewable energy",keys:["renewable energy","solar power","wind power","hydroelectric","battery storage"],answer:"Renewable energy comes from sources replenished naturally on human timescales, such as sunlight, wind and flowing water. Solar panels convert light into electricity; wind turbines convert moving air into electrical energy. Storage, transmission, land use and grid management help balance variable generation."},
+{title:"Animals and ecosystems",keys:["ecosystem","food chain","biodiversity","habitat","predator","pollination"],answer:"An ecosystem includes living organisms and their physical environment. Food webs show how energy moves through producers, consumers and decomposers. Biodiversity supports ecosystem resilience and functions such as pollination, nutrient cycling and water purification. Habitat loss, invasive species, pollution and climate change can disrupt ecosystems."},
+{title:"Plants and photosynthesis",keys:["photosynthesis","plants","chlorophyll","plant growth","respiration"],answer:"Photosynthesis lets plants, algae and some bacteria use light energy to convert carbon dioxide and water into energy-rich sugars, releasing oxygen in the process. Chlorophyll absorbs light. Plants also respire, using stored sugars to release energy for cellular processes."},
+{title:"Time management",keys:["time management","procrastination","productivity","focus","planning tasks"],answer:"A practical way to manage work is to choose one important task, break it into a first small action, estimate a realistic time and remove distractions. Time-blocking and short focus sessions can help. Review what actually took time and adjust the plan rather than treating every delay as a personal failure."},
+{title:"Communication",keys:["communication","conversation skills","active listening","conflict","teamwork"],answer:"Good communication combines clear expression with active listening. Reflect back what you heard, ask open questions, separate observations from assumptions and check that you agree on next steps. In disagreements, focus on the specific issue and shared goal rather than attacking the person."},
+{title:"Problem solving",keys:["solve a problem","problem solving","troubleshoot","fix this","where do i start"],answer:"A reliable problem-solving loop is: define the problem precisely, gather evidence, split it into smaller parts, propose possible causes, test one change at a time, record what happened and revise. If you share the exact error, what you expected and what happened instead, I can help diagnose it."},
+{title:"What is a theory",keys:["scientific theory","theory and hypothesis","theory vs law","what is a theory"],answer:"In science, a theory is a broad explanation supported by many lines of evidence and repeatedly tested against observations. A hypothesis is a narrower, testable proposed explanation. A scientific law describes a regular pattern; a theory helps explain why patterns occur. A theory is not simply an untested guess."},
+{title:"Big questions about the universe",keys:["origin of universe","big bang","universe expanding","dark matter","dark energy"],answer:"The Big Bang model describes the universe expanding from an earlier hot, dense state about 13.8 billion years ago. Evidence includes cosmic expansion, the cosmic microwave background and the abundance of light elements. Dark matter is inferred from gravitational effects; dark energy is the name given to whatever drives the observed accelerated expansion. Their underlying nature remains unknown."},
+{title:"Artificial satellites",keys:["satellite orbit","orbit","gps","navigation satellite","geostationary"],answer:"A satellite stays in orbit by moving sideways fast enough that as it falls under gravity, Earth curves away beneath it. Lower orbits move around Earth more quickly; geostationary satellites orbit above the equator with a period matching Earth's rotation, appearing fixed over one longitude."},
+{title:"Basic chemistry",keys:["chemistry","chemical reaction","acid","base","ph","chemical bond"],answer:"Chemistry studies matter and how it changes. Atoms form bonds by sharing or transferring electrons. Chemical reactions rearrange atoms into new substances while conserving atoms and total electric charge. Acids and bases are described by several models; pH is a logarithmic measure related to hydrogen-ion activity in aqueous solutions."},
+{title:"Human body",keys:["human body","heart","lungs","blood","digestive system","organs"],answer:"The human body is made of interacting systems. The cardiovascular system moves blood, the respiratory system exchanges oxygen and carbon dioxide, the digestive system breaks down food and absorbs nutrients, and the nervous and endocrine systems coordinate activity. No organ works entirely alone."},
+{title:"What is a black hole's size",keys:["schwarzschild radius","black hole size","black hole mass","how big is a black hole"],answer:"For a non-rotating black hole, the Schwarzschild radius is proportional to mass: double the mass and the radius doubles. It is not the radius of a solid ball of compressed matter; it marks the event horizon. Real astrophysical black holes can rotate, so the full description is more complex."},
+{title:"Choosing a gaming console",keys:["what console should i buy","which console","best console","console advice","console comparison"],answer:"The best console depends on budget, preferred games, portability, subscription costs, disc needs and where your friends play. Compare the exact models and current local prices before deciding. Tell me your budget and the games you enjoy and I can narrow it down."},
+{title:"Reducing gaming lag",keys:["game lag","lagging game","fps drop","stutter","ping","connection"],answer:"First identify the type of lag. High ping or rubber-banding is usually network-related; low FPS or choppy visuals is usually device performance. For network lag, try Ethernet and pause downloads. For low FPS, lower graphics settings, close background apps and check device temperatures."},
+{title:"FPS and RPG definitions",keys:["fps","first person shooter","rpg","role playing game"],answer:"FPS commonly means first-person shooter, where the view is from the character's perspective; it can also mean frames per second, a measure of display smoothness. RPG means role-playing game, usually featuring character progression, abilities, quests and story choices."},
+{title:"Game recommendations",keys:["recommend a game","recommend","what should i play","suggest a game","game for me"],answer:"I can help find a game that fits your taste. Think about the platform, budget, preferred genre, solo or multiplayer, difficulty and whether you want a short or long experience. Tell me two games you already enjoy and I'll use them as clues."},
+{title:"Thanks and greetings",keys:["hello","hi","hey","sup","thanks","thank you"],answer:"Hey! 👾 I'm ZIPP. I can help explain things, brainstorm, compare options, solve problems and explore all sorts of topics. What are you curious about?"}
+];
+
+const zippConversation = [];
+let zippLastTopic = null;
+const zippStopWords = new Set(["what","when","where","which","who","why","how","does","do","did","is","are","was","were","the","a","an","and","or","but","to","of","in","on","for","with","about","tell","me","please","can","you","i","it","this","that","be","my","your","explain","give","some","more"]);
+function zippTokens(text){
+ return String(text||"").toLowerCase().replace(/[^a-z0-9+#.\s-]/g," ").split(/\s+/).filter(w=>w.length>1&&!zippStopWords.has(w));
+}
+function zippScore(query,item){
+ const q=String(query).toLowerCase();const tokens=zippTokens(query);let score=0;
+ for(const key of item.keys){const k=key.toLowerCase().trim();if(k.includes(" ")){if(q.includes(k))score=Math.max(score,7+Math.min(k.length/20,2));}else if(new RegExp("(^|\\s)"+k.replace(/[.*+?^${}()|[\\]\\]/g,"\\$&")+"(\\s|$)").test(q)){score=Math.max(score,k.length<=2?3.5:5);}}
+ const title=zippTokens(item.title);for(const t of tokens){if(title.includes(t))score+=2.2;for(const k of item.keys){if(k===t)score+=1.5;else if(k.startsWith(t)&&t.length>3)score+=0.45;}}
+ const unique=new Set(tokens);if(unique.size>0){let hits=0;for(const t of unique)if(item.keys.some(k=>k.includes(t))||title.includes(t))hits++;score+=hits/unique.size*3;}
+ return score;
+}
+function zippFindKnowledge(message){
+ let best=null,bestScore=0;for(const item of zippKnowledge){const score=zippScore(message,item);if(score>bestScore){best=item;bestScore=score;}}
+ return bestScore>=3.2?{item:best,score:bestScore}:null;
+}
+function zippCalculator(message){
+ const m=message.trim().match(/^(?:what is |calculate |solve )?(-?\d+(?:\.\d+)?(?:\s*[+*/%^-]\s*-?\d+(?:\.\d+)?|\s*[+*/%^-]\s*\([^()]+\))+)\??$/i);if(!m)return null;
+ const expr=m[1].replace(/\s+/g,"");if(!/^[0-9.+*/%()^-]+$/.test(expr))return null;
+ try{const tokens=expr.match(/\d+(?:\.\d+)?|[()+*/%^-]/g)||[];let pos=0;
+  function primary(){if(tokens[pos]==="-"){pos++;return -primary();}if(tokens[pos]==="+"){pos++;return primary();}if(tokens[pos]==="("){pos++;const v=add();if(tokens[pos++]!==")")throw Error();return v;}const n=Number(tokens[pos++]);if(!Number.isFinite(n))throw Error();return n;}
+  function power(){let v=primary();if(tokens[pos]==="^"){pos++;v=Math.pow(v,power());}return v;}
+  function mul(){let v=power();while(["*","/","%"].includes(tokens[pos])){const op=tokens[pos++],r=power();v=op==="*"?v*r:op==="/"?v/r:v%r;}return v;}
+  function add(){let v=mul();while(["+","-"].includes(tokens[pos])){const op=tokens[pos++],r=mul();v=op==="+"?v+r:v-r;}return v;}
+  const result=add();if(pos!==tokens.length||!Number.isFinite(result))return "I couldn't calculate that expression safely. Check the brackets and operators.";return "The answer is **"+Number(result.toPrecision(12))+"**.";
+ }catch(e){return null;}
+}
+function zippReply(message){
+ const q=message.toLowerCase().trim();
+ if(/^(hi|hello|hey|yo|sup|good morning|good afternoon|good evening)[!. ]*$/.test(q))return "Hey! 👾 ZIPP is online. Ask me anything — science, coding, history, gaming, maths, ideas or everyday questions.";
+ if(/^(thanks|thank you|cheers)[!. ]*$/.test(q))return "Anytime! 💚 What else can I help you figure out?";
+ const calc=zippCalculator(message);if(calc)return calc;
+ const follow=/^(and |what about |how about |why |how |can you explain |tell me more|go on|continue|elaborate|what does that mean|give an example)/i.test(message.trim());
+ let match=zippFindKnowledge(message);
+ if(!match&&follow&&zippLastTopic){match={item:zippLastTopic,score:4};}
+ if(match){zippLastTopic=match.item;let answer=match.item.answer;
+  if(follow&&zippConversation.length>1)answer="Building on our conversation about **"+match.item.title+"**: "+answer;
+  return answer+"\n\nWant me to go deeper, give an example, or explain a related idea?";
+ }
+ const tokens=zippTokens(message);if(tokens.length===0)return "I'm listening! Give me a question or tell me what you're trying to do.";
+ const recent=zippConversation.slice(-4).map(x=>x.text).join(" ");
+ if(/\b(compare|versus|vs)\b/i.test(message))return "I can compare those. I'll look at performance, cost, strengths, weaknesses and what matters most. Which two things should I compare?";
+ if(/\b(why|how)\b/i.test(message))return "I want to give you a useful explanation rather than guess. Can you add the subject or a little context? For example, tell me what 'it' refers to, or paste the error or question.";
+ return "I don't have a reliable built-in answer for that exact question yet. I can still help if you give me a little more context or split it into parts. My offline library currently covers science, space, technology, programming, maths, history, geography, economics, psychology, writing, creativity, wellbeing and gaming.\n\nIf you want genuinely open-ended answers to almost anything, ZIPP will need a secure online AI connection — a standalone HTML file cannot safely store a private AI API key.";
+}
+function appendZippMessage(text,isUser){
+ const log=document.getElementById("zippChatLog");
+ const item=document.createElement("div");item.className="chat-message "+(isUser?"user-message":"zipp-message");
+ const label=document.createElement("b");label.textContent=isUser?"YOU":"👾 ZIPP";
+ const body=document.createElement("p");body.textContent=String(text).replace(/\*\*(.*?)\*\*/g,"$1");body.style.whiteSpace="pre-wrap";
+ item.append(label,body);log.appendChild(item);log.scrollTop=log.scrollHeight;
+}
+function sendZippMessage(event){
+ event.preventDefault();const input=document.getElementById("zippChatInput");const message=input.value.trim();
+ if(!message)return;appendZippMessage(message,true);zippConversation.push({role:"user",text:message});input.value="";
+ const reply=zippReply(message);zippConversation.push({role:"assistant",text:reply});if(zippConversation.length>16)zippConversation.splice(0,zippConversation.length-16);
+ appendZippMessage(reply,false);
+}
+function askZipp(message){document.getElementById("zippChatInput").value=message;document.getElementById("zippChatInput").focus();document.querySelector(".chat-compose").requestSubmit();}
+
+// Load saved data before rendering the arcade, so the UI never starts with an empty profile.
+(async function startArcade(){
+ await initialiseStorage();
+ initCloud();
+ if(supabase){
+  try{await cloudRestoreSession();}
+  catch(e){cloudMessage("Could not connect to cloud: "+(e.message||"check Supabase setup"),false);}
+ }else if(db.session){
+  const u=currentUser();if(u)dailyLogin(u);else db.session=null;
+ }
+ renderCategories();
+ refresh();
+ console.log("ZIPP ARCADE FULL EDITION LOADED — storage:",storageMode,"cloud:",!!supabase);
+})();
+</script>
+</body>
+</html>
