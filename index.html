@@ -216,10 +216,10 @@ footer{text-align:center;border-top:1px solid #292849;padding:35px;color:#777795
 <section id="leaderboard" class="panel">
  <div class="kicker">THE COMPETITION</div>
  <h2>🏆 PLAYER LEADERBOARD</h2>
- <p class="muted">The highest XP players in this browser's ZIPP ARCADE.</p>
+ <p class="muted">The highest XP players across ZIPP ARCADE.</p>
  <div class="podium" id="podium"></div>
  <table class="rank-table"><tbody id="rankRows"></tbody></table>
- <p class="muted">Only accounts created on this browser are shown.</p>
+ <p class="muted">Cloud leaderboard updates when players log in and save progress.</p>
 </section>
 
 <section id="community" class="panel">
@@ -268,7 +268,8 @@ footer{text-align:center;border-top:1px solid #292849;padding:35px;color:#777795
   <p class="muted" id="modalDesc">Create your player account.</p>
   <div id="accountFields">
    <input class="field" id="username" maxlength="16" placeholder="Username">
-   <input class="field" id="password" type="password" placeholder="Password (minimum 8 characters)">
+   <input class="field" id="email" type="email" autocomplete="email" placeholder="Email address">
+   <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password (minimum 8 characters)">
   </div>
   <div class="modal-actions" id="accountActions">
    <button class="primary" onclick="register()">CREATE ACCOUNT</button>
@@ -291,6 +292,7 @@ footer{text-align:center;border-top:1px solid #292849;padding:35px;color:#777795
  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ======================================
 // ZIPP ARCADE - COMPLETE GAME PLATFORM
@@ -305,6 +307,77 @@ let db={accounts:[],session:null};
 let idb=null;
 let storageMode="STARTING";
 let saveQueue=Promise.resolve();
+
+// SUPABASE CLOUD CONFIGURATION
+// Paste your Supabase Project URL and anon/publishable key here after creating the project.
+// Never put a service_role key or database password in this public website.
+const SUPABASE_URL="https://edhuhgtuxzasbuiotrfz.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_JiY1vIOzhAYRt4bea1uwug_HMO7RuQ4";
+let supabase=null;
+let cloudUserId=null;
+let cloudSaveQueue=Promise.resolve();
+let cloudReady=false;
+function cloudConfigured(){return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL)&&(/^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/.test(SUPABASE_ANON_KEY));}
+function initCloud(){
+ if(!cloudConfigured()||!window.supabase?.createClient){showStorageStatus("⚠ Local saves only — connect your Supabase project to enable cloud sync",false);return false;}
+ supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ return true;
+}
+function cloudMessage(message,ok=true){showStorageStatus((ok?"☁ ":"⚠ ")+message,ok);}
+async function cloudLoadProfile(){
+ if(!supabase||!cloudUserId)return null;
+ const {data:publicData,error:publicError}=await supabase.from("zipp_profiles").select("username,xp").eq("id",cloudUserId).maybeSingle();
+ if(publicError)throw publicError;
+ if(!publicData)return null;
+ const {data:saveData,error:saveError}=await supabase.from("zipp_player_saves").select("profile_data").eq("id",cloudUserId).maybeSingle();
+ if(saveError)throw saveError;
+ return {...(saveData?.profile_data||{}),username:publicData.username,xp:Number(publicData.xp)||0};
+}
+async function cloudSaveProfile(){
+ if(!supabase||!cloudUserId)return;
+ const u=currentUser();if(!u)return;
+ const profile={...u};delete profile.passwordHash;delete profile.email;
+ const {error:profileError}=await supabase.from("zipp_profiles").upsert({id:cloudUserId,username:u.username,xp:Number(u.xp)||0,updated_at:new Date().toISOString()},{onConflict:"id"});
+ if(profileError)throw profileError;
+ const {error:saveError}=await supabase.from("zipp_player_saves").upsert({id:cloudUserId,profile_data:profile,updated_at:new Date().toISOString()},{onConflict:"id"});
+ if(saveError)throw saveError;
+}
+async function cloudRefreshPlayers(){
+ if(!supabase)return;
+ const {data,error}=await supabase.from("zipp_profiles").select("username,xp").order("xp",{ascending:false}).limit(200);
+ if(error)throw error;
+ const cloudPlayers=(data||[]).map(row=>({username:row.username,xp:Number(row.xp)||0}));
+ const me=currentUser();
+ db.accounts=cloudPlayers;
+ if(me){const latest=db.accounts.find(a=>a.username===me.username);if(latest)Object.assign(me,latest);}
+ if(me&&!db.accounts.some(a=>a.username===me.username))db.accounts.push(me);
+}
+async function cloudRestoreSession(){
+ if(!supabase)return;
+ const {data,error}=await supabase.auth.getSession();
+ if(error)throw error;
+ const session=data.session;
+ if(!session){cloudUserId=null;return;}
+ cloudUserId=session.user.id;
+ const profile=await cloudLoadProfile();
+ if(profile){
+  const idx=db.accounts.findIndex(a=>a.username===profile.username);
+  if(idx>=0)db.accounts[idx]={...db.accounts[idx],...profile};else db.accounts.push(profile);
+  db.session=profile.username;
+  dailyLogin(currentUser());
+  await cloudSaveProfile();
+ }else{
+  const username=session.user.user_metadata?.username;
+  if(username){
+   const migrated=db.accounts.find(a=>a.username.toLowerCase()===String(username).toLowerCase());
+   const fresh=migrated?{...migrated,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+   delete fresh.passwordHash;db.accounts.push(fresh);db.session=username;await cloudSaveProfile();
+  }else{db.session=null;cloudMessage("Cloud account has no ZIPP username. Please contact the site owner.",false);}
+ }
+ await cloudRefreshPlayers();
+ cloudReady=true;
+ cloudMessage("Cloud saves connected — your progress syncs when you log in on another device.");
+}
 
 function showStorageStatus(message, ok){
  const el=document.getElementById("storageStatus");
@@ -372,12 +445,15 @@ function persist(){
  if(idb){
   saveQueue=saveQueue.then(()=>idbWrite(snapshot)).then(()=>{
    storageMode="IndexedDB";
-   showStorageStatus("✓ All progress saved",true);
+   if(!supabase)showStorageStatus("✓ Saved on this device · cloud not connected",true);
   }).catch(()=>{
-   showStorageStatus("⚠ Could not save to browser storage. Export/keep this file open until resolved.",false);
+   showStorageStatus("⚠ Could not save to browser storage.",false);
   });
- }else if(storageMode==="unavailable"){
-  showStorageStatus("⚠ Storage unavailable in this preview. Progress is temporary until you open the downloaded HTML in Chrome.",false);
+ }
+ if(supabase&&cloudUserId){
+  cloudSaveQueue=cloudSaveQueue.then(()=>cloudSaveProfile()).then(()=>cloudMessage("Progress saved to your cloud account.")).catch(e=>cloudMessage("Cloud save failed: "+(e.message||"check connection and database setup"),false));
+ }else if(storageMode==="unavailable"&&!supabase){
+  showStorageStatus("⚠ Browser storage unavailable and cloud is not connected.",false);
  }
 }
 function currentUser(){
@@ -483,10 +559,11 @@ function openAccount(){
    <button class="secondary" onclick="logout()">LOG OUT</button>`;
  }else{
   document.getElementById("modalTitle").textContent="JOIN ZIPP ARCADE";
-  document.getElementById("modalDesc").textContent="Create an account or log in.";
+  document.getElementById("modalDesc").textContent="Create: username + email + password. Login: email + password.";
   fields.innerHTML=`
    <input class="field" id="username" maxlength="16" placeholder="Username">
-   <input class="field" id="password" type="password" placeholder="Password (minimum 8 characters)">`;
+   <input class="field" id="email" type="email" autocomplete="email" placeholder="Email address">
+   <input class="field" id="password" type="password" autocomplete="current-password" placeholder="Password (minimum 8 characters)">`;
   actions.innerHTML=`
    <button class="primary" onclick="register()">CREATE ACCOUNT</button>
    <button class="secondary" onclick="login()">LOGIN</button>`;
@@ -511,47 +588,61 @@ async function passwordHash(password){
 }
 async function register(){
  const username=document.getElementById("username").value.trim();
+ const email=(document.getElementById("email")?.value||"").trim().toLowerCase();
  const password=document.getElementById("password").value;
- if(!/^[a-zA-Z0-9_]{3,16}$/.test(username)){
-  accountMessage("Username: 3–16 letters, numbers or underscores.");return;
- }
- if(password.length<8){accountMessage("Password must be at least 8 characters.");return}
- if(db.accounts.some(a=>a.username.toLowerCase()===username.toLowerCase())){
-  accountMessage("That username is already taken.");return;
- }
+ if(!/^[a-zA-Z0-9_]{3,16}$/.test(username)){accountMessage("Username: 3–16 letters, numbers or underscores.");return;}
+ if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){accountMessage("Enter a valid email address for your cloud account.");return;}
+ if(password.length<8){accountMessage("Password must be at least 8 characters.");return;}
+ if(!supabase){accountMessage("Cloud is not connected yet. The site owner must add the Supabase project URL and anon key.");return;}
  try{
-  const hash=await passwordHash(password);
-  const u={
-   username,passwordHash:hash,xp:0,plays:0,
-   favorites:[],claimed:[],questDate:today(),
-   questPlays:0,lastLogin:today(),streak:1,
-   achievements:[]
-  };
-  db.accounts.push(u);
-  db.session=username;
-  persist();
-  refresh();
-  openAccount();
-  accountMessage("Account successfully created! Welcome to ZIPP!");
- }catch(e){accountMessage(e.message)}
+  accountMessage("Creating your secure cloud account…");
+  const {data,error}=await supabase.auth.signUp({email,password,options:{data:{username}}});
+  if(error)throw error;
+  if(!data.session){accountMessage("Check your email and confirm your account, then return here and log in. Your password is handled securely by Supabase.");return;}
+  cloudUserId=data.user.id;
+  const old=db.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase());
+  const u=old?{...old,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+  delete u.passwordHash;
+  if(!Array.isArray(u.favorites))u.favorites=[];
+  if(!Array.isArray(u.claimed))u.claimed=[];
+  if(!Array.isArray(u.achievements))u.achievements=[];
+  db.accounts=db.accounts.filter(a=>a.username.toLowerCase()!==username.toLowerCase());
+  db.accounts.push(u);db.session=username;
+  await cloudSaveProfile();
+  await cloudRefreshPlayers();
+  persist();refresh();openAccount();accountMessage("Cloud account created! Your existing local progress was carried over when available.");
+ }catch(e){accountMessage(e.message||"Could not create cloud account.");}
 }
 async function login(){
- const username=document.getElementById("username").value.trim();
+ const email=(document.getElementById("email")?.value||"").trim().toLowerCase();
  const password=document.getElementById("password").value;
+ if(!supabase){accountMessage("Cloud is not connected yet. The site owner must add the Supabase project URL and anon key.");return;}
+ if(!email){accountMessage("Enter the email address for your cloud account.");return;}
  try{
-  const hash=await passwordHash(password);
-  const u=db.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase()&&a.passwordHash===hash);
-  if(!u){accountMessage("Incorrect username or password.");return}
-  db.session=u.username;
-  dailyLogin(u);
-  persist();
-  refresh();
-  openAccount();
-  accountMessage("Welcome back, "+u.username+"!");
- }catch(e){accountMessage(e.message)}
+  accountMessage("Logging in and downloading your cloud save…");
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  cloudUserId=data.user.id;
+  let profile=await cloudLoadProfile();
+  if(!profile){
+   const username=data.user.user_metadata?.username;
+   if(!username)throw new Error("No ZIPP player profile found for this account.");
+   const old=db.accounts.find(a=>a.username.toLowerCase()===String(username).toLowerCase());
+   profile=old?{...old,username}:{username,xp:0,plays:0,favorites:[],claimed:[],questDate:today(),questPlays:0,lastLogin:today(),streak:1,achievements:[]};
+   delete profile.passwordHash;db.accounts.push(profile);db.session=username;await cloudSaveProfile();
+  }
+  const idx=db.accounts.findIndex(a=>a.username===profile.username);
+  if(idx>=0)db.accounts[idx]={...db.accounts[idx],...profile};else db.accounts.push(profile);
+  db.session=profile.username;
+  dailyLogin(currentUser());
+  await cloudRefreshPlayers();
+  await cloudSaveProfile();
+  persist();refresh();openAccount();accountMessage("Welcome back! Your cloud progress has synced.");
+ }catch(e){accountMessage(e.message||"Login failed. Check your email and password.");}
 }
-function logout(){
- db.session=null;favorites=[];
+async function logout(){
+ try{if(supabase&&cloudUserId){await cloudSaveQueue;await cloudSaveProfile();await supabase.auth.signOut();}}catch(e){cloudMessage("Signed out locally; last cloud save may not have completed.",false);}
+ cloudUserId=null;db.session=null;favorites=[];
  persist();closeModal();refresh();
 }
 function dailyLogin(u){
@@ -829,7 +920,7 @@ function renderProfile(){
  <div class="stats">
   <div class="stat"><strong>${level(u.xp)}</strong><small>PLAYER LEVEL</small></div>
   <div class="stat"><strong>${u.xp}</strong><small>TOTAL XP</small></div>
-  <div class="stat"><strong>#${rank}</strong><small>LOCAL RANK</small></div>
+  <div class="stat"><strong>#${rank}</strong><small>GLOBAL RANK</small></div>
   <div class="stat"><strong>${u.plays}</strong><small>GAMES LAUNCHED</small></div>
   <div class="stat"><strong>${u.streak} 🔥</strong><small>LOGIN STREAK</small></div>
   <div class="stat"><strong>${u.achievements.length}</strong><small>BADGES EARNED</small></div>
@@ -1035,14 +1126,16 @@ function askZipp(message){document.getElementById("zippChatInput").value=message
 // Load saved data before rendering the arcade, so the UI never starts with an empty profile.
 (async function startArcade(){
  await initialiseStorage();
- if(db.session){
-  const u=currentUser();
-  if(u)dailyLogin(u);
-  else db.session=null;
+ initCloud();
+ if(supabase){
+  try{await cloudRestoreSession();}
+  catch(e){cloudMessage("Could not connect to cloud: "+(e.message||"check Supabase setup"),false);}
+ }else if(db.session){
+  const u=currentUser();if(u)dailyLogin(u);else db.session=null;
  }
  renderCategories();
  refresh();
- console.log("ZIPP ARCADE FULL EDITION LOADED — storage:",storageMode);
+ console.log("ZIPP ARCADE FULL EDITION LOADED — storage:",storageMode,"cloud:",!!supabase);
 })();
 </script>
 </body>
