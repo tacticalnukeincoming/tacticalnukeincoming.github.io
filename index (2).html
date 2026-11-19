@@ -1,0 +1,849 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZIPP ARCADE</title>
+<style>
+:root{
+ --bg:#090a18;--panel:#14152b;--panel2:#1c1b39;
+ --blue:#456cff;--purple:#a34dff;--green:#55ff79;
+ --muted:#9999bb;--line:#34345c;--gold:#ffd65b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+body:before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+ background:radial-gradient(ellipse at 10% 10%,#273a8340,transparent 45%),
+ radial-gradient(ellipse at 90% 30%,#8126a433,transparent 45%);
+}
+header{
+ height:75px;position:sticky;top:0;z-index:10;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 5%;background:#101023ed;backdrop-filter:blur(15px);
+ border-bottom:1px solid var(--line);gap:15px;
+}
+.logo{font-weight:1000;font-size:24px;letter-spacing:2px;
+ text-shadow:3px 0 var(--purple),-3px 0 var(--blue)}
+.logo span{color:var(--green)}
+nav{display:flex;gap:20px;align-items:center}
+nav button{border:0;background:none;color:#b5b4d4;font-size:12px;font-weight:bold}
+nav button:hover{color:var(--green)}
+.account-button,.primary{
+ border:0;background:var(--green);color:#08140a;
+ font-weight:900;border-radius:8px;padding:12px 17px;
+}
+.account-button{background:#30234f;color:#d6b8ff;border:1px solid #8856c9}
+main{max-width:1250px;margin:auto;padding:28px 23px}
+.hero{
+ min-height:270px;border:1px solid #5146a8;border-radius:18px;
+ padding:40px 5%;display:flex;align-items:center;
+ justify-content:space-between;overflow:hidden;
+ background:linear-gradient(115deg,#171a48,#28134c 70%,#11162e);
+}
+.hero h1{font-size:clamp(37px,6vw,64px);line-height:1.02;margin:12px 0}
+.hero h1 span{color:var(--green)}
+.hero p{color:#c4c3e5;line-height:1.6}
+.mascot{font-size:105px;filter:drop-shadow(0 0 22px var(--green));animation:float 3s infinite ease-in-out}
+@keyframes float{50%{transform:translateY(-12px) rotate(5deg)}}
+.kicker{color:var(--green);font-size:11px;letter-spacing:3px;font-weight:bold}
+.search{display:flex;gap:10px;margin:25px 0}
+.search input,.field{
+ width:100%;background:#15162e;border:1px solid var(--line);
+ color:white;padding:14px;border-radius:8px;outline:none;
+}
+.search input:focus,.field:focus{border-color:var(--purple)}
+.heading{display:flex;align-items:center;justify-content:space-between;margin:32px 0 17px;gap:10px}
+.heading h2{font-size:21px;margin:0}
+.heading span{font-size:11px;color:var(--green)}
+.categories{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+.cat{background:#17172f;border:1px solid var(--line);color:#ccc;
+ padding:10px 15px;border-radius:7px}
+.cat.active,.cat:hover{background:#5731a5;border-color:#b27aff;color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.game{background:var(--panel);border:1px solid #33335a;border-radius:12px;overflow:hidden;transition:.2s}
+.game:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 8px 25px #783aff30}
+.thumb{height:145px;display:grid;place-items:center;font-size:65px;position:relative}
+.tag{position:absolute;top:10px;left:10px;background:#101020d9;color:var(--green);padding:6px 9px;font-size:10px;border-radius:5px}
+.details{padding:14px}
+.details h3{margin:0 0 7px;font-size:16px}
+.details p{font-size:12px;color:var(--muted);margin:0}
+.meta{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:#ccc}
+.meta strong{color:var(--green)}
+.game-actions{display:flex;gap:8px;margin-top:13px}
+.play{flex:1;border:0;background:#6841d9;color:white;padding:10px;border-radius:6px;font-weight:bold}
+.fav{border:0;background:#292542;color:#ff7abb;padding:9px 13px;border-radius:6px;font-size:19px}
+.panel{background:linear-gradient(130deg,#171638,#211344,#10152b);
+ border:1px solid #514584;border-radius:15px;padding:23px;margin:30px 0}
+.panel h2{margin:0 0 8px}
+.muted{color:var(--muted);font-size:13px}
+.quest-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px;margin-top:20px}
+.quest{background:#15152d;border:1px solid #403b6c;border-radius:10px;padding:16px}
+.quest-icon{font-size:32px}
+.quest h3{font-size:14px}
+.bar{height:8px;background:#34304f;border-radius:10px;overflow:hidden;margin:10px 0}
+.bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--green))}
+.quest button{width:100%;margin-top:12px;padding:10px;border:0;border-radius:6px;font-weight:bold}
+.reward{color:#c9a3ff;font-weight:bold;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0}
+.stat{background:#191934;border:1px solid var(--line);padding:16px;border-radius:10px}
+.stat strong{font-size:25px;color:var(--green);display:block;margin-bottom:5px}
+.stat small{color:var(--muted)}
+.rank-table{width:100%;border-collapse:collapse;margin-top:18px}
+.rank-table td{padding:15px 9px;border-bottom:1px solid var(--line)}
+.rank-table tr:first-child td{color:var(--gold)}
+.rank-table td:last-child{text-align:right;color:var(--green)}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.podium div{background:#242044;border-radius:9px;text-align:center;padding:16px 5px}
+.podium strong{font-size:23px;display:block;color:var(--gold)}
+.podium small{color:var(--muted)}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:20px}
+.badge-card{background:#191934;border:1px solid var(--line);padding:16px;text-align:center;border-radius:10px}
+.badge-card .emoji{font-size:35px}
+.badge-card.locked{opacity:.35;filter:grayscale(1)}
+.progress-text{font-size:12px;color:var(--muted)}
+footer{text-align:center;border-top:1px solid #292849;padding:35px;color:#777795;font-size:12px;margin-top:50px}
+.modal{display:none;position:fixed;inset:0;background:#050510ed;z-index:50;align-items:center;justify-content:center;padding:15px;overflow-y:auto}
+.modal.show{display:flex}
+.modal-card{background:#17172f;border:1px solid #8956d5;border-radius:15px;padding:26px;width:100%;max-width:420px;box-shadow:0 0 40px #783aff30}
+.modal-card h2{color:var(--green)}
+.modal-card input{margin:8px 0}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.modal-actions button{flex:1;min-width:110px}
+.secondary{background:#373257;color:white;border:1px solid #514778;padding:11px;border-radius:7px}
+.message{color:#ff91bd;font-size:12px;min-height:18px}
+.close{background:#393454;color:white;padding:10px 15px;border:0;border-radius:7px}
+.empty{text-align:center;color:var(--muted);padding:35px;grid-column:1/-1}
+.profile-avatar{font-size:60px}
+.social-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.social-row:last-child{border-bottom:0}.social-name{font-weight:bold}.social-actions{display:flex;gap:6px;flex-wrap:wrap}
+.social-actions button{padding:7px 10px;font-size:11px}.social-pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#29234a;color:#cdb4ff;font-size:10px;margin-left:6px}
+@media(max-width:650px){
+ header{padding:0 12px;height:65px}
+ .logo{font-size:18px}
+ nav{gap:8px}
+ nav button{font-size:10px}
+ main{padding:20px 14px}
+ .hero{padding:25px 18px}
+ .mascot{font-size:65px}
+ .hero h1{font-size:37px}
+ .panel{padding:16px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">ZIPP<span> ARCADE</span></div>
+ <nav>
+  <button onclick="go('home')">HOME</button>
+  <button onclick="go('quests')">QUESTS</button>
+  <button onclick="go('leaderboard')">RANKS</button>
+  <button onclick="go('community')">FRIENDS</button>
+ </nav>
+ <button class="account-button" id="accountButton" onclick="openAccount()">👤 LOGIN</button>
+</header>
+
+<main>
+<section id="home">
+ <div class="hero">
+  <div>
+   <div class="kicker">WELCOME TO THE ARCADE</div>
+   <h1>LEVEL UP.<br><span>GLITCH OUT.</span></h1>
+   <p>Discover games. Complete missions.<br>Become a ZIPP legend.</p>
+   <button class="primary" onclick="go('games')">EXPLORE GAMES →</button>
+  </div>
+  <div class="mascot">👾</div>
+ </div>
+
+ <div class="stats" id="homeStats"></div>
+ <div class="search">
+  <input id="search" placeholder="🔍 Search games..." oninput="renderGames()">
+  <button class="primary" onclick="document.getElementById('search').value='';renderGames()">CLEAR</button>
+ </div>
+ <div class="heading"><h2>⚡ GAME CATEGORIES</h2><span>FIND YOUR NEXT GAME</span></div>
+ <div class="categories" id="categories"></div>
+ <div class="heading" id="games"><h2 id="gameHeading">🔥 POPULAR GAMES</h2><span id="gameCount"></span></div>
+ <div class="grid" id="gameGrid"></div>
+</section>
+
+<section id="quests" class="panel">
+ <div class="kicker">ZIPP MISSION CONTROL</div>
+ <h2>⚡ DAILY QUESTS</h2>
+ <p class="muted">Complete missions, collect XP and climb the rankings.</p>
+ <div class="stats" id="questStats"></div>
+ <div id="questGrid" class="quest-grid"></div>
+ <p class="muted">🌙 Daily quests reset at midnight according to your device's date.</p>
+</section>
+
+<section id="leaderboard" class="panel">
+ <div class="kicker">THE COMPETITION</div>
+ <h2>🏆 PLAYER LEADERBOARD</h2>
+ <p class="muted">The highest XP players in this browser's ZIPP ARCADE.</p>
+ <div class="podium" id="podium"></div>
+ <table class="rank-table"><tbody id="rankRows"></tbody></table>
+ <p class="muted">Only accounts created on this browser are shown.</p>
+</section>
+
+<section id="community" class="panel">
+ <div class="kicker">ZIPP SOCIAL NETWORK</div>
+ <h2>👥 FRIENDS & FOLLOWERS</h2>
+ <p class="muted">Find players, send friend requests, and follow people. In this preview, accounts are stored locally in this browser.</p>
+ <div id="socialStats" class="stats"></div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0">
+  <input id="playerSearch" class="field" style="flex:1;min-width:190px" maxlength="16" placeholder="Search player username..." oninput="renderSocialSearch()">
+  <button class="primary" onclick="renderSocialSearch()">FIND PLAYERS</button>
+ </div>
+ <div id="socialSearchResults"></div>
+ <div class="quest-grid" style="margin-top:22px">
+  <div class="quest"><h3>📨 FRIEND REQUESTS</h3><div id="friendRequests"></div></div>
+  <div class="quest"><h3>🤝 YOUR FRIENDS</h3><div id="friendList"></div></div>
+  <div class="quest"><h3>💚 FOLLOWING</h3><div id="followingList"></div></div>
+  <div class="quest"><h3>⭐ FOLLOWERS</h3><div id="followersList"></div></div>
+ </div>
+</section>
+
+<section id="achievements" class="panel">
+ <div class="kicker">COLLECT THEM ALL</div>
+ <h2>🏅 ACHIEVEMENTS</h2>
+ <p class="muted">Unlock badges as you progress through the arcade.</p>
+ <div class="badges" id="badges"></div>
+</section>
+
+<section id="profile" class="panel">
+ <div class="kicker">YOUR PLAYER IDENTITY</div>
+ <h2>👤 PLAYER PROFILE</h2>
+ <div id="profileContent" class="muted">Log in to see your profile.</div>
+</section>
+</main>
+
+<footer>
+ <div id="storageStatus" role="status" aria-live="polite" style="max-width:850px;margin:0 auto 18px;padding:10px 14px;border:1px solid #48518c;border-radius:10px;background:#151b3a;font-size:12px">Checking browser storage…</div>
+ <div style="font-size:25px;color:var(--green)">👾 ZIPP ARCADE</div>
+ DISCOVER • PLAY • EXPLORE • REPEAT<br><br>
+ UNOFFICIAL GAME DISCOVERY PLATFORM • NOT AFFILIATED WITH ROBLOX
+</footer>
+
+<div class="modal" id="accountModal">
+ <div class="modal-card">
+  <div style="font-size:40px">👾</div>
+  <h2 id="modalTitle">WELCOME TO ZIPP</h2>
+  <p class="muted" id="modalDesc">Create your player account.</p>
+  <div id="accountFields">
+   <input class="field" id="username" maxlength="16" placeholder="Username">
+   <input class="field" id="password" type="password" placeholder="Password (minimum 8 characters)">
+  </div>
+  <div class="modal-actions" id="accountActions">
+   <button class="primary" onclick="register()">CREATE ACCOUNT</button>
+   <button class="secondary" onclick="login()">LOGIN</button>
+  </div>
+  <p class="message" id="accountMessage"></p>
+  <button class="close" onclick="closeModal()">CLOSE</button>
+ </div>
+</div>
+
+<div class="modal" id="gameModal">
+ <div class="modal-card" style="text-align:center">
+  <div id="gameEmoji" style="font-size:65px">🎮</div>
+  <h2 id="gameTitle">GAME TITLE</h2>
+  <p id="gameDescription" class="muted"></p>
+  <p style="color:var(--green)">READY TO PLAY?</p>
+  <button class="primary" id="launchButton">PLAY GAME ↗</button>
+  <p id="gameMessage" class="muted"></p>
+  <button class="close" onclick="document.getElementById('gameModal').classList.remove('show')">BACK</button>
+ </div>
+</div>
+
+<script>
+// ======================================
+// ZIPP ARCADE - COMPLETE GAME PLATFORM
+// ======================================
+
+// Persistent storage: IndexedDB first, localStorage as a fallback.
+// HTML preview frames can block localStorage, so failures are shown to the player.
+const STORAGE="zipp_arcade_complete_v1";
+const DB_NAME="zipp_arcade_storage";
+const DB_STORE="player_data";
+let db={accounts:[],session:null};
+let idb=null;
+let storageMode="STARTING";
+let saveQueue=Promise.resolve();
+
+function showStorageStatus(message, ok){
+ const el=document.getElementById("storageStatus");
+ if(el){el.textContent=message;el.style.color=ok?"#8dff76":"#ffbd69";}
+}
+function openStorageDB(){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(new Error("IndexedDB unavailable"));return;}
+  const request=indexedDB.open(DB_NAME,1);
+  request.onupgradeneeded=()=>{
+   const database=request.result;
+   if(!database.objectStoreNames.contains(DB_STORE))database.createObjectStore(DB_STORE);
+  };
+  request.onsuccess=()=>resolve(request.result);
+  request.onerror=()=>reject(request.error||new Error("Could not open IndexedDB"));
+  request.onblocked=()=>reject(new Error("Storage is blocked by the preview"));
+ });
+}
+function idbRead(){
+ return new Promise((resolve,reject)=>{
+  const tx=idb.transaction(DB_STORE,"readonly");
+  const request=tx.objectStore(DB_STORE).get("state");
+  request.onsuccess=()=>resolve(request.result||null);
+  request.onerror=()=>reject(request.error);
+ });
+}
+function idbWrite(serialized){
+ return new Promise((resolve,reject)=>{
+  const tx=idb.transaction(DB_STORE,"readwrite");
+  tx.objectStore(DB_STORE).put(serialized,"state");
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error||new Error("Save failed"));
+  tx.onabort=()=>reject(tx.error||new Error("Save was interrupted"));
+ });
+}
+async function initialiseStorage(){
+ try{
+  idb=await openStorageDB();
+  const saved=await idbRead();
+  if(saved){db=JSON.parse(saved);}
+  else {
+   // Migrate existing localStorage accounts into IndexedDB on first run.
+   try{const old=localStorage.getItem(STORAGE);if(old)db=JSON.parse(old);}catch(e){}
+   await idbWrite(JSON.stringify(db));
+  }
+  storageMode="IndexedDB";
+  showStorageStatus("✓ Progress saving on this browser",true);
+ }catch(idbError){
+  try{
+   const old=localStorage.getItem(STORAGE);
+   if(old)db=JSON.parse(old);
+   storageMode="localStorage";
+   showStorageStatus("✓ Progress saving in browser storage",true);
+  }catch(storageError){
+   storageMode="unavailable";
+   showStorageStatus("⚠ Preview blocked browser storage — progress may not survive closing this preview. Download/open the HTML in Chrome to save locally.",false);
+  }
+ }
+ if(!db||!Array.isArray(db.accounts))db={accounts:[],session:null};
+}
+function persist(){
+ const snapshot=JSON.stringify(db);
+ // Keep the synchronous fallback for browsers that support localStorage.
+ try{localStorage.setItem(STORAGE,snapshot);}catch(e){}
+ if(idb){
+  saveQueue=saveQueue.then(()=>idbWrite(snapshot)).then(()=>{
+   storageMode="IndexedDB";
+   showStorageStatus("✓ All progress saved",true);
+  }).catch(()=>{
+   showStorageStatus("⚠ Could not save to browser storage. Export/keep this file open until resolved.",false);
+  });
+ }else if(storageMode==="unavailable"){
+  showStorageStatus("⚠ Storage unavailable in this preview. Progress is temporary until you open the downloaded HTML in Chrome.",false);
+ }
+}
+function currentUser(){
+ return db.accounts.find(a=>a.username===db.session)||null;
+}
+function today(){
+ const d=new Date();
+ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function yesterday(){
+ const d=new Date();
+ d.setDate(d.getDate()-1);
+ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+function level(xp){return Math.floor(xp/100)+1}
+function levelProgress(xp){return xp%100}
+
+// Game library
+const games=[
+ {name:"Blox Adventure",cat:"Adventure",emoji:"🏝️",rating:"4.9",players:"12.4K",tag:"POPULAR",color:"linear-gradient(135deg,#145b73,#312b8d)",url:""},
+ {name:"Escape The Glitch",cat:"Obby",emoji:"⚡",rating:"4.8",players:"8.2K",tag:"TRENDING",color:"linear-gradient(135deg,#4e1478,#172e78)",url:""},
+ {name:"Nightmare Zone",cat:"Horror",emoji:"👻",rating:"4.7",players:"6.7K",tag:"SCARY",color:"linear-gradient(135deg,#39153b,#17152a)",url:""},
+ {name:"Mega Simulator",cat:"Simulator",emoji:"🚀",rating:"4.9",players:"9.1K",tag:"POPULAR",color:"linear-gradient(135deg,#174b77,#205b61)",url:""},
+ {name:"Space Tycoon",cat:"Simulator",emoji:"🪐",rating:"4.6",players:"5.3K",tag:"NEW",color:"linear-gradient(135deg,#38216f,#183c76)",url:""},
+ {name:"Dungeon Quest",cat:"Adventure",emoji:"⚔️",rating:"4.8",players:"4.8K",tag:"ADVENTURE",color:"linear-gradient(135deg,#663e20,#29204f)",url:""},
+ {name:"Tower Rush",cat:"Obby",emoji:"🏗️",rating:"4.7",players:"7.5K",tag:"TRENDING",color:"linear-gradient(135deg,#235b9a,#5a236e)",url:""},
+ {name:"Zombie Outbreak",cat:"Horror",emoji:"🧟",rating:"4.5",players:"3.2K",tag:"HORROR",color:"linear-gradient(135deg,#294b35,#24203c)",url:""}
+];
+
+let category="All";
+let favorites=[];
+let selectedGame=null;
+
+function go(id){
+ document.getElementById(id).scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// Categories
+function renderCategories(){
+ const cats=["All","Trending","Adventure","Horror","Simulator","Obby","Favorites"];
+ document.getElementById("categories").innerHTML=cats.map(c=>
+ `<button class="cat ${category===c?"active":""}" onclick="setCategory('${c}')">${c==="All"?"ALL GAMES":c==="Favorites"?"💜 FAVOURITES":c.toUpperCase()}</button>`
+ ).join("");
+}
+function setCategory(c){category=c;renderCategories();renderGames()}
+
+function renderGames(){
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=games.filter(g=>{
+  const matchCat=category==="All"||
+   (category==="Favorites"&&favorites.includes(g.name))||
+   (category==="Trending"&&g.tag==="TRENDING")||g.cat===category;
+  return matchCat&&(g.name.toLowerCase().includes(q)||g.cat.toLowerCase().includes(q));
+ });
+ document.getElementById("gameCount").textContent=list.length+" GAMES";
+ document.getElementById("gameHeading").textContent=category==="All"?"🔥 POPULAR GAMES":category.toUpperCase()+" GAMES";
+ document.getElementById("gameGrid").innerHTML=list.length?list.map(g=>{
+  const i=games.indexOf(g);
+  return `<article class="game">
+   <div class="thumb" style="background:${g.color}">
+    <span class="tag">${g.tag}</span>${g.emoji}
+   </div>
+   <div class="details">
+    <h3>${escapeHTML(g.name)}</h3>
+    <p>${g.cat} • ZIPP ARCADE PICK</p>
+    <div class="meta"><span>⭐ ${g.rating}</span><strong>● ${g.players} players*</strong></div>
+    <div class="game-actions">
+     <button class="play" onclick="openGame(${i})">▶ PLAY</button>
+     <button class="fav" onclick="toggleFavorite('${g.name}')">${favorites.includes(g.name)?"♥":"♡"}</button>
+    </div>
+   </div>
+  </article>`;
+ }).join(""):'<div class="empty">👾 ZIPP COULD NOT FIND THAT GAME.</div>';
+}
+function toggleFavorite(name){
+ if(favorites.includes(name))favorites=favorites.filter(x=>x!==name);
+ else favorites.push(name);
+ const u=currentUser();
+ if(u){u.favorites=favorites.slice();persist()}
+ renderGames();
+ renderProfile();
+}
+
+// Account system
+function openAccount(){
+ const u=currentUser();
+ const modal=document.getElementById("accountModal");
+ const fields=document.getElementById("accountFields");
+ const actions=document.getElementById("accountActions");
+ if(u){
+  document.getElementById("modalTitle").textContent="PLAYER PROFILE";
+  document.getElementById("modalDesc").textContent="Welcome back, "+u.username+"!";
+  fields.innerHTML=`<div class="stat">
+   <strong>👾 ${escapeHTML(u.username)}</strong>
+   <small>LEVEL ${level(u.xp)} • ${u.xp} XP</small>
+   </div>`;
+  actions.innerHTML=`
+   <button class="primary" onclick="closeModal();go('profile')">VIEW PROFILE</button>
+   <button class="secondary" onclick="logout()">LOG OUT</button>`;
+ }else{
+  document.getElementById("modalTitle").textContent="JOIN ZIPP ARCADE";
+  document.getElementById("modalDesc").textContent="Create an account or log in.";
+  fields.innerHTML=`
+   <input class="field" id="username" maxlength="16" placeholder="Username">
+   <input class="field" id="password" type="password" placeholder="Password (minimum 8 characters)">`;
+  actions.innerHTML=`
+   <button class="primary" onclick="register()">CREATE ACCOUNT</button>
+   <button class="secondary" onclick="login()">LOGIN</button>`;
+ }
+ document.getElementById("accountMessage").textContent="";
+ modal.classList.add("show");
+}
+function closeModal(){document.getElementById("accountModal").classList.remove("show")}
+function accountMessage(t){document.getElementById("accountMessage").textContent=t}
+
+async function passwordHash(password){
+ const bytes=new TextEncoder().encode(password);
+ if(window.crypto&&crypto.subtle){
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return "sha256:"+Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+ }
+ // Compatibility fallback for restricted HTML previews. This is for demo accounts only,
+ // not suitable for a public production login system.
+ let h1=0x811c9dc5,h2=0x9e3779b9;
+ for(const byte of bytes){h1=Math.imul(h1^byte,0x01000193);h2=Math.imul(h2^byte,0x85ebca6b);}
+ return "preview:"+(h1>>>0).toString(16)+":"+(h2>>>0).toString(16);
+}
+async function register(){
+ const username=document.getElementById("username").value.trim();
+ const password=document.getElementById("password").value;
+ if(!/^[a-zA-Z0-9_]{3,16}$/.test(username)){
+  accountMessage("Username: 3–16 letters, numbers or underscores.");return;
+ }
+ if(password.length<8){accountMessage("Password must be at least 8 characters.");return}
+ if(db.accounts.some(a=>a.username.toLowerCase()===username.toLowerCase())){
+  accountMessage("That username is already taken.");return;
+ }
+ try{
+  const hash=await passwordHash(password);
+  const u={
+   username,passwordHash:hash,xp:0,plays:0,
+   favorites:[],claimed:[],questDate:today(),
+   questPlays:0,lastLogin:today(),streak:1,
+   achievements:[]
+  };
+  db.accounts.push(u);
+  db.session=username;
+  persist();
+  refresh();
+  openAccount();
+  accountMessage("Account successfully created! Welcome to ZIPP!");
+ }catch(e){accountMessage(e.message)}
+}
+async function login(){
+ const username=document.getElementById("username").value.trim();
+ const password=document.getElementById("password").value;
+ try{
+  const hash=await passwordHash(password);
+  const u=db.accounts.find(a=>a.username.toLowerCase()===username.toLowerCase()&&a.passwordHash===hash);
+  if(!u){accountMessage("Incorrect username or password.");return}
+  db.session=u.username;
+  dailyLogin(u);
+  persist();
+  refresh();
+  openAccount();
+  accountMessage("Welcome back, "+u.username+"!");
+ }catch(e){accountMessage(e.message)}
+}
+function logout(){
+ db.session=null;favorites=[];
+ persist();closeModal();refresh();
+}
+function dailyLogin(u){
+ const t=today();
+ if(u.lastLogin===t)return;
+ u.streak=u.lastLogin===yesterday()?(u.streak||1)+1:1;
+ u.lastLogin=t;
+ u.xp+=25;
+ if(u.streak%7===0)u.xp+=100;
+}
+
+// Daily quests
+const quests=[
+ {id:"first",name:"FIRST CONTACT",desc:"Play your first game today.",goal:1,reward:50,icon:"🎮"},
+ {id:"gamer",name:"ARCADE ADDICT",desc:"Play 3 games today.",goal:3,reward:100,icon:"👾"},
+ {id:"explorer",name:"DIMENSION HOPPER",desc:"Play 5 games today.",goal:5,reward:200,icon:"🚀"},
+ {id:"marathon",name:"GAME MARATHON",desc:"Play 10 games today.",goal:10,reward:350,icon:"🔥"}
+];
+function resetQuests(u){
+ if(u.questDate!==today()){
+  u.questDate=today();u.questPlays=0;u.claimed=[];
+ }
+}
+function renderQuests(){
+ const u=currentUser();
+ if(!u){
+  document.getElementById("questStats").innerHTML='<div class="stat"><strong>🔒</strong><small>Log in to track quests</small></div>';
+  document.getElementById("questGrid").innerHTML='<div class="empty">CREATE AN ACCOUNT TO START YOUR MISSIONS!</div>';
+  return;
+ }
+ resetQuests(u);persist();
+ const done=quests.filter(q=>u.questPlays>=q.goal).length;
+ document.getElementById("questStats").innerHTML=`
+ <div class="stat"><strong>${done}/${quests.length}</strong><small>Quests completed</small></div>
+ <div class="stat"><strong>${u.questPlays}</strong><small>Games played today</small></div>
+ <div class="stat"><strong>⚡ ${u.xp}</strong><small>Total XP</small></div>`;
+ document.getElementById("questGrid").innerHTML=quests.map(q=>{
+  const progress=Math.min(u.questPlays,q.goal);
+  const ready=progress>=q.goal;
+  const claimed=u.claimed.includes(q.id);
+  return `<div class="quest">
+   <div class="quest-icon">${q.icon}</div>
+   <h3>${q.name}</h3>
+   <p class="muted">${q.desc}</p>
+   <div style="display:flex;justify-content:space-between;font-size:11px">
+    <span>PROGRESS</span><b style="color:var(--green)">${progress}/${q.goal}</b>
+   </div>
+   <div class="bar"><div style="width:${progress/q.goal*100}%"></div></div>
+   <div class="reward">⚡ ${q.reward} XP</div>
+   <button class="${ready&&!claimed?"primary":"secondary"}" ${!ready||claimed?"disabled":""} onclick="claimQuest('${q.id}')">
+   ${claimed?"✓ CLAIMED":ready?"CLAIM REWARD":"LOCKED"}
+   </button>
+  </div>`;
+ }).join("");
+}
+function claimQuest(id){
+ const u=currentUser();
+ if(!u){openAccount();return}
+ resetQuests(u);
+ const q=quests.find(x=>x.id===id);
+ if(!q||u.questPlays<q.goal||u.claimed.includes(id))return;
+ u.claimed.push(id);
+ u.xp+=q.reward;
+ persist();refresh();
+ alert("QUEST COMPLETE! +"+q.reward+" XP 🎉");
+}
+
+// XP, game launches and progression
+function openGame(i){
+ selectedGame=games[i];
+ const u=currentUser();
+ document.getElementById("gameEmoji").textContent=selectedGame.emoji;
+ document.getElementById("gameTitle").textContent=selectedGame.name;
+ document.getElementById("gameDescription").textContent="Explore "+selectedGame.name+" in the "+selectedGame.cat+" category.";
+ document.getElementById("gameMessage").textContent=u?"You'll earn 25 XP for launching this game.":"Log in to earn XP.";
+ document.getElementById("gameModal").classList.add("show");
+ document.getElementById("launchButton").onclick=()=>{
+  const player=currentUser();
+  if(!player){
+   document.getElementById("gameModal").classList.remove("show");
+   openAccount();return;
+  }
+  resetQuests(player);
+  player.xp+=25;
+  player.plays++;
+  player.questPlays++;
+  unlockAchievements(player);
+  persist();
+  refresh();
+  document.getElementById("gameModal").classList.remove("show");
+  if(selectedGame.url){
+   window.open(selectedGame.url,"_blank","noopener,noreferrer");
+  }else{
+   alert("You earned 25 XP! This is a demo game listing. Add a real Roblox game URL in the games array to launch the actual game.");
+  }
+ };
+}
+
+// Achievements
+const achievements=[
+ {id:"newbie",name:"NEW PLAYER",desc:"Create an account.",icon:"🌟",check:u=>true},
+ {id:"gamer",name:"GAMER",desc:"Play 5 games.",icon:"🎮",check:u=>u.plays>=5},
+ {id:"veteran",name:"VETERAN",desc:"Play 25 games.",icon:"🏆",check:u=>u.plays>=25},
+ {id:"legend",name:"LEGEND",desc:"Reach 1,000 XP.",icon:"👑",check:u=>u.xp>=1000},
+ {id:"streak",name:"DEDICATED",desc:"Reach a 7-day login streak.",icon:"🔥",check:u=>u.streak>=7},
+ {id:"collector",name:"COLLECTOR",desc:"Favourite 5 games.",icon:"💜",check:u=>(u.favorites||[]).length>=5}
+];
+function unlockAchievements(u){
+ achievements.forEach(a=>{
+  if(a.check(u)&&!u.achievements.includes(a.id)){
+   u.achievements.push(a.id);
+   setTimeout(()=>alert("ACHIEVEMENT UNLOCKED! "+a.icon+" "+a.name),100);
+  }
+ });
+}
+function renderAchievements(){
+ const u=currentUser();
+ document.getElementById("badges").innerHTML=achievements.map(a=>{
+  const unlocked=u&&u.achievements.includes(a.id);
+  return `<div class="badge-card ${unlocked?"":"locked"}">
+   <div class="emoji">${unlocked?a.icon:"🔒"}</div>
+   <b>${a.name}</b><p class="progress-text">${a.desc}</p>
+   <small>${unlocked?"UNLOCKED":"LOCKED"}</small>
+  </div>`;
+ }).join("");
+}
+
+// Leaderboard
+function renderLeaderboard(){
+ const accounts=db.accounts.slice().sort((a,b)=>b.xp-a.xp||a.username.localeCompare(b.username));
+ const top=accounts.slice(0,3);
+ const order=[1,0,2];
+ const medals=["🥇","🥈","🥉"];
+ document.getElementById("podium").innerHTML=order.map(i=>{
+  const a=top[i];
+  return `<div><strong>${a?medals[i]:"—"}</strong>
+  <b>${a?escapeHTML(a.username):"EMPTY"}</b>
+  <small>${a?a.xp+" XP":"Awaiting players"}</small></div>`;
+ }).join("");
+ document.getElementById("rankRows").innerHTML=accounts.length?accounts.map((a,i)=>
+ `<tr><td style="color:var(--purple)">#${i+1}</td>
+ <td>👾 ${escapeHTML(a.username)} ${db.session===a.username?"(YOU)":""}</td>
+ <td>${a.xp} XP</td></tr>`).join(""):'<tr><td colspan="3">No players yet. Create an account!</td></tr>';
+}
+
+// Friends and followers: local-browser social graph (not cross-device accounts).
+function ensureSocialFields(a){
+ if(!Array.isArray(a.friends))a.friends=[];
+ if(!Array.isArray(a.friendRequests))a.friendRequests=[];
+ if(!Array.isArray(a.sentRequests))a.sentRequests=[];
+ if(!Array.isArray(a.followers))a.followers=[];
+ if(!Array.isArray(a.following))a.following=[];
+}
+function accountByName(name){return db.accounts.find(a=>a.username.toLowerCase()===String(name).toLowerCase())||null}
+function socialButton(label,action,kind='secondary'){
+ return `<button class="${kind}" onclick="${action}">${label}</button>`;
+}
+function sendFriendRequest(name){
+ const me=currentUser(),target=accountByName(name);
+ if(!me){openAccount();return}
+ if(!target||target.username===me.username)return;
+ ensureSocialFields(me);ensureSocialFields(target);
+ if(me.friends.includes(target.username)){alert('You are already friends.');return}
+ if(target.friendRequests.includes(me.username)){alert('Your request is already waiting for them.');return}
+ if(me.friendRequests.includes(target.username)){
+  acceptFriendRequest(target.username);return;
+ }
+ if(!me.sentRequests.includes(target.username))me.sentRequests.push(target.username);
+ if(!target.friendRequests.includes(me.username))target.friendRequests.push(me.username);
+ persist();renderSocial();
+}
+function acceptFriendRequest(name){
+ const me=currentUser(),sender=accountByName(name);if(!me||!sender)return;
+ ensureSocialFields(me);ensureSocialFields(sender);
+ me.friendRequests=me.friendRequests.filter(x=>x!==sender.username);
+ sender.sentRequests=sender.sentRequests.filter(x=>x!==me.username);
+ if(!me.friends.includes(sender.username))me.friends.push(sender.username);
+ if(!sender.friends.includes(me.username))sender.friends.push(me.username);
+ // Friends automatically follow one another; following can later be removed independently.
+ if(!me.following.includes(sender.username))me.following.push(sender.username);
+ if(!sender.followers.includes(me.username))sender.followers.push(me.username);
+ if(!sender.following.includes(me.username))sender.following.push(me.username);
+ if(!me.followers.includes(sender.username))me.followers.push(sender.username);
+ persist();renderSocial();
+}
+function declineFriendRequest(name){
+ const me=currentUser(),sender=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.friendRequests=me.friendRequests.filter(x=>x!==name);
+ if(sender){ensureSocialFields(sender);sender.sentRequests=sender.sentRequests.filter(x=>x!==me.username)}
+ persist();renderSocial();
+}
+function cancelFriendRequest(name){
+ const me=currentUser(),target=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.sentRequests=me.sentRequests.filter(x=>x!==name);
+ if(target){ensureSocialFields(target);target.friendRequests=target.friendRequests.filter(x=>x!==me.username)}
+ persist();renderSocial();renderSocialSearch();
+}
+function removeFriend(name){
+ const me=currentUser(),other=accountByName(name);if(!me)return;
+ ensureSocialFields(me);me.friends=me.friends.filter(x=>x!==name);
+ if(other){ensureSocialFields(other);other.friends=other.friends.filter(x=>x!==me.username)}
+ persist();renderSocial();
+}
+function toggleFollow(name){
+ const me=currentUser(),target=accountByName(name);if(!me){openAccount();return}
+ if(!target||target.username===me.username)return;
+ ensureSocialFields(me);ensureSocialFields(target);
+ if(me.following.includes(target.username)){
+  me.following=me.following.filter(x=>x!==target.username);
+  target.followers=target.followers.filter(x=>x!==me.username);
+ }else{
+  me.following.push(target.username);
+  if(!target.followers.includes(me.username))target.followers.push(me.username);
+ }
+ persist();renderSocial();renderSocialSearch();
+}
+function socialRows(names,empty,makeActions){
+ if(!names.length)return `<p class="muted">${empty}</p>`;
+ return names.map(name=>{
+  const a=accountByName(name);if(!a)return '';
+  return `<div class="social-row"><span class="social-name">👾 ${escapeHTML(a.username)}</span><span class="social-actions">${makeActions?makeActions(a):''}</span></div>`;
+ }).join('');
+}
+function renderSocialSearch(){
+ const out=document.getElementById('socialSearchResults');if(!out)return;
+ const me=currentUser(),q=(document.getElementById('playerSearch')?.value||'').trim().toLowerCase();
+ if(!me){out.innerHTML='<p class="muted">Log in to find and connect with players.</p>';return}
+ const matches=db.accounts.filter(a=>a.username!==me.username&&(!q||a.username.toLowerCase().includes(q)));
+ out.innerHTML='<h3>🔎 PLAYER DISCOVERY</h3>'+(matches.length?matches.map(a=>{
+  ensureSocialFields(me);ensureSocialFields(a);
+  const isFriend=me.friends.includes(a.username),sent=me.sentRequests.includes(a.username),incoming=me.friendRequests.includes(a.username),following=me.following.includes(a.username);
+  let friendAction=isFriend?socialButton('FRIENDS ✓',`removeFriend('${escapeHTML(a.username)}')`):incoming?socialButton('ACCEPT REQUEST',`acceptFriendRequest('${escapeHTML(a.username)}')`,'primary'):sent?socialButton('CANCEL REQUEST',`cancelFriendRequest('${escapeHTML(a.username)}')`):socialButton('ADD FRIEND',`sendFriendRequest('${escapeHTML(a.username)}')`,'primary');
+  let followAction=socialButton(following?'UNFOLLOW':'FOLLOW',`toggleFollow('${escapeHTML(a.username)}')`);
+  return `<div class="social-row"><div><span class="social-name">👾 ${escapeHTML(a.username)}</span><span class="social-pill">LVL ${level(a.xp||0)}</span><div class="muted">${a.xp||0} XP · ${(a.followers||[]).length} followers</div></div><span class="social-actions">${friendAction}${followAction}</span></div>`;
+ }).join(''):'<p class="muted">No players found. Create another account in this browser to test the social system.</p>');
+}
+function renderSocial(){
+ const me=currentUser();
+ if(!me){
+  ['socialStats','friendRequests','friendList','followingList','followersList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<p class="muted">Log in to use the social system.</p>'});
+  renderSocialSearch();return;
+ }
+ ensureSocialFields(me);
+ const stat=document.getElementById('socialStats');
+ stat.innerHTML=`<div class="stat"><strong>${me.friends.length}</strong><small>FRIENDS</small></div><div class="stat"><strong>${me.followers.length}</strong><small>FOLLOWERS</small></div><div class="stat"><strong>${me.following.length}</strong><small>FOLLOWING</small></div><div class="stat"><strong>${me.friendRequests.length}</strong><small>NEW REQUESTS</small></div>`;
+ document.getElementById('friendRequests').innerHTML=socialRows(me.friendRequests,'No pending requests.',a=>socialButton('ACCEPT',`acceptFriendRequest('${escapeHTML(a.username)}')`,'primary')+socialButton('DECLINE',`declineFriendRequest('${escapeHTML(a.username)}')`));
+ document.getElementById('friendList').innerHTML=socialRows(me.friends,'No friends yet.',a=>socialButton('REMOVE',`removeFriend('${escapeHTML(a.username)}')`));
+ document.getElementById('followingList').innerHTML=socialRows(me.following,'You are not following anyone.',a=>socialButton('UNFOLLOW',`toggleFollow('${escapeHTML(a.username)}')`));
+ document.getElementById('followersList').innerHTML=socialRows(me.followers,'No followers yet.',a=>socialButton(me.following.includes(a.username)?'UNFOLLOW':'FOLLOW',`toggleFollow('${escapeHTML(a.username)}')`));
+ renderSocialSearch();
+}
+
+// Player profile
+function renderProfile(){
+ const u=currentUser();
+ if(!u){
+  document.getElementById("profileContent").innerHTML='Log in to see your profile.';
+  return;
+ }
+ const rank=db.accounts.slice().sort((a,b)=>b.xp-a.xp).findIndex(a=>a.username===u.username)+1;
+ document.getElementById("profileContent").innerHTML=`
+ <div class="profile-avatar">👾</div>
+ <h2 style="color:var(--green)">${escapeHTML(u.username)}</h2>
+ <div class="stats">
+  <div class="stat"><strong>${level(u.xp)}</strong><small>PLAYER LEVEL</small></div>
+  <div class="stat"><strong>${u.xp}</strong><small>TOTAL XP</small></div>
+  <div class="stat"><strong>#${rank}</strong><small>LOCAL RANK</small></div>
+  <div class="stat"><strong>${u.plays}</strong><small>GAMES LAUNCHED</small></div>
+  <div class="stat"><strong>${u.streak} 🔥</strong><small>LOGIN STREAK</small></div>
+  <div class="stat"><strong>${u.achievements.length}</strong><small>BADGES EARNED</small></div>
+  <div class="stat"><strong>${(u.friends||[]).length}</strong><small>FRIENDS</small></div>
+  <div class="stat"><strong>${(u.followers||[]).length}</strong><small>FOLLOWERS</small></div>
+ </div>
+ <div style="display:flex;justify-content:space-between">
+  <b>LEVEL ${level(u.xp)}</b><span>${levelProgress(u.xp)}/100 XP</span>
+ </div>
+ <div class="bar"><div style="width:${levelProgress(u.xp)}%"></div></div>
+ <p class="muted">XP TO NEXT LEVEL: ${100-levelProgress(u.xp)}</p>
+ <p class="muted">FAVOURITE GAMES: ${(u.favorites||[]).length}</p>`;
+}
+
+// Home dashboard
+function renderHomeStats(){
+ const u=currentUser();
+ document.getElementById("homeStats").innerHTML=`
+ <div class="stat"><strong>${u?level(u.xp):"—"}</strong><small>YOUR LEVEL</small></div>
+ <div class="stat"><strong>${u?u.xp:0}</strong><small>YOUR XP</small></div>
+ <div class="stat"><strong>${u?u.streak:0} 🔥</strong><small>LOGIN STREAK</small></div>
+ <div class="stat"><strong>${db.accounts.length}</strong><small>LOCAL PLAYERS</small></div>`;
+}
+
+// Main refresh
+function refresh(){
+ const u=currentUser();
+ const button=document.getElementById("accountButton");
+ button.textContent=u?"👤 "+u.username:"👤 LOGIN";
+ if(u){
+  if(!u.achievements)u.achievements=[];
+  if(!u.favorites)u.favorites=[];
+  if(!u.streak)u.streak=1;
+  ensureSocialFields(u);
+  favorites=u.favorites.slice();
+  unlockAchievements(u);
+ }
+ renderHomeStats();
+ renderGames();
+ renderQuests();
+ renderLeaderboard();
+ renderAchievements();
+ renderProfile();
+ renderSocial();
+ persist();
+}
+
+// Load saved data before rendering the arcade, so the UI never starts with an empty profile.
+(async function startArcade(){
+ await initialiseStorage();
+ if(db.session){
+  const u=currentUser();
+  if(u)dailyLogin(u);
+  else db.session=null;
+ }
+ renderCategories();
+ refresh();
+ console.log("ZIPP ARCADE FULL EDITION LOADED — storage:",storageMode);
+})();
+</script>
+</body>
+</html>
